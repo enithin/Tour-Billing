@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horizon Tours | Enterprise Billing</title>
+    <title>Horizon Tours | Admin ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
@@ -19,8 +19,8 @@
 
 <div id="login-overlay" class="fixed inset-0 z-[100] bg-slate-900 flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
-        <h2 class="text-2xl font-black text-slate-800 mb-2">Internal Access</h2>
-        <p class="text-slate-500 mb-6 text-sm">Authorized Personnel Only</p>
+        <h2 class="text-2xl font-black text-slate-800 mb-2 tracking-tight uppercase">Horizon Login</h2>
+        <p class="text-slate-500 mb-6 text-sm">Cloud Billing System Access</p>
         <div class="space-y-4">
             <input type="email" id="login-email" placeholder="Email" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
             <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
@@ -33,30 +33,31 @@
 <div class="container mx-auto py-8 px-4 no-print">
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
-            <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Horizon <span class="text-blue-600">ERP</span></h1>
-            <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Tour Operations Suite</p>
+            <h1 class="text-3xl font-black text-slate-800 tracking-tight">HORIZON <span class="text-blue-600 uppercase">ERP</span></h1>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Tour & Logistics Management</p>
         </div>
         <div class="flex gap-2">
-            <button onclick="exportToCSV()" class="bg-white border px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-50 transition">📥 CSV Export</button>
-            <button onclick="handleLogout()" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-100 transition">Log Out</button>
+            <button onclick="exportToCSV()" class="bg-white border px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-50 transition">📥 Download CSV</button>
+            <button onclick="handleLogout()" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-100">Log Out</button>
         </div>
     </div>
     
     <div class="grid lg:grid-cols-3 gap-8">
         <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-blue-600">● New Booking</h2>
+            <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-blue-600 uppercase tracking-tighter">● New Booking</h2>
             
             <form id="billing-form" class="space-y-4">
                 <input type="text" id="guest-name" placeholder="Guest Name" class="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
-                <input type="text" id="guest-phone" placeholder="WhatsApp Number (eg. 919876543210)" class="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="text" id="itinerary" placeholder="Itinerary / Destination" class="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="guest-phone" placeholder="Phone (e.g. 919876543210)" class="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="itinerary" placeholder="Destination / Route" class="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                 
                 <div class="grid grid-cols-2 gap-3">
                     <input type="date" id="tour-date" class="p-3 bg-slate-50 border rounded-lg text-sm">
-                    <select id="vehicle-type" class="p-3 bg-slate-50 border rounded-lg text-sm">
+                    <select id="vehicle-type" class="p-3 bg-slate-50 border rounded-lg text-sm font-bold">
                         <option value="Sedan">Sedan</option>
-                        <option value="SUV">SUV</option>
+                        <option value="SUV (Innova/Ertiga)">SUV</option>
                         <option value="Luxury Coach">Coach</option>
+                        <option value="Tempo Traveller">Tempo</option>
                     </select>
                 </div>
 
@@ -70,51 +71,59 @@
                     <input type="number" id="end-km" placeholder="End KM" class="p-3 bg-slate-50 border rounded-lg text-sm">
                     <input type="number" id="fixed-limit" placeholder="Fixed KM" class="p-3 bg-slate-50 border rounded-lg text-sm">
                 </div>
-                <input type="number" id="extra-km-rate" placeholder="Rate per Extra KM" class="w-full p-3 bg-slate-50 border rounded-lg text-sm">
 
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="base-rate" placeholder="Base Package Rate" class="p-3 bg-slate-50 border rounded-lg">
-                    <input type="number" id="extras" placeholder="Tolls/Parking" class="p-3 bg-slate-50 border rounded-lg">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="tax-rate" placeholder="Tax %" class="p-3 bg-slate-50 border rounded-lg">
-                    <input type="number" id="driver-incentive" placeholder="Driver Batta" class="p-3 bg-amber-50 border-amber-200 border rounded-lg">
+                    <input type="number" id="base-rate" placeholder="Base Rate (₹)" class="p-3 bg-slate-50 border rounded-lg font-bold text-blue-700">
+                    <input type="number" id="extra-km-rate" placeholder="₹ / Extra KM" class="p-3 bg-slate-50 border rounded-lg">
                 </div>
 
-                <div class="flex flex-col gap-2 pt-2">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="extras" placeholder="Tolls/Parking (₹)" class="p-3 bg-slate-50 border rounded-lg">
+                    <input type="number" id="tax-rate" placeholder="GST % (e.g. 5)" class="p-3 bg-slate-50 border rounded-lg">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="driver-incentive" placeholder="Driver Batta (₹)" class="p-3 bg-amber-50 border-amber-200 border rounded-lg text-sm">
+                    <div class="p-3 bg-green-50 text-green-700 rounded-lg text-[10px] font-bold flex flex-col justify-center border border-green-100">
+                        <span>EST. MARGIN</span>
+                        <span id="margin-display" class="text-sm font-black">₹0</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 pt-4">
                     <div class="flex gap-2">
                         <button type="button" onclick="updatePreview()" class="bg-slate-800 text-white px-4 py-3 rounded-xl font-bold flex-1">Update Preview</button>
-                        <button type="button" onclick="saveToBillBook()" class="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold flex-1">Save to Cloud</button>
+                        <button type="button" onclick="saveToBillBook()" class="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold flex-1">Sync to Cloud</button>
                     </div>
                     <button type="button" onclick="sendWhatsApp()" class="bg-green-500 text-white px-4 py-3 rounded-xl font-bold w-full">📲 Send via WhatsApp</button>
                 </div>
             </form>
         </div>
 
-        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[750px]">
-            <h2 class="text-lg font-bold mb-4">Cloud Bill Book</h2>
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[800px]">
+            <h2 class="text-lg font-bold mb-4 uppercase tracking-tighter">Cloud Bill Book (Real-time)</h2>
             
-            <div class="bg-slate-50 p-3 rounded-xl mb-4 border border-slate-200 flex flex-wrap gap-3 items-end">
-                <div class="flex-1 min-w-[120px]">
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">FROM</label>
-                    <input type="date" id="filter-start" class="w-full p-2 text-xs border rounded-lg outline-none">
+            <div class="bg-slate-50 p-4 rounded-xl mb-6 border border-slate-200 flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-[140px]">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">From Date</label>
+                    <input type="date" id="filter-start" class="w-full p-2 text-xs border rounded-lg">
                 </div>
-                <div class="flex-1 min-w-[120px]">
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">TO</label>
-                    <input type="date" id="filter-end" class="w-full p-2 text-xs border rounded-lg outline-none">
+                <div class="flex-1 min-w-[140px]">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">To Date</label>
+                    <input type="date" id="filter-end" class="w-full p-2 text-xs border rounded-lg">
                 </div>
-                <button onclick="applyDateFilter()" class="bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold">Apply</button>
-                <button onclick="printSummaryReport()" class="bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold">📊 Report</button>
-                <button onclick="resetDateFilter()" class="text-slate-400 text-[10px] hover:underline">Reset</button>
+                <button onclick="applyDateFilter()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold">Apply</button>
+                <button onclick="printSummaryReport()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-bold">📊 Print Summary</button>
+                <button onclick="resetDateFilter()" class="text-slate-400 text-[10px] hover:underline">Reset All</button>
             </div>
 
             <div class="overflow-y-auto flex-1 border rounded-xl">
-                <table class="w-full text-sm text-left border-collapse">
+                <table class="w-full text-sm text-left">
                     <thead class="bg-slate-50 sticky top-0 border-b">
                         <tr>
-                            <th class="p-3 font-bold">ID</th>
-                            <th class="p-3 font-bold">Guest / Driver</th>
-                            <th class="p-3 text-right font-bold">Total / Profit</th>
+                            <th class="p-4 font-bold text-slate-500">ID</th>
+                            <th class="p-4 font-bold text-slate-500">Trip Details</th>
+                            <th class="p-4 text-right font-bold text-slate-500">Revenue / Profit</th>
                         </tr>
                     </thead>
                     <tbody id="bill-book-entries" class="divide-y divide-slate-100">
@@ -126,100 +135,98 @@
 </div>
 
 <div id="bill-canvas" class="bill-paper bg-white mx-auto my-10 p-12 w-[210mm] border">
-    <div class="flex justify-between items-start border-b-4 border-blue-600 pb-8">
+    <div class="flex justify-between items-start border-b-4 border-blue-600 pb-10">
         <div>
-            <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">Horizon Tours</h2>
-            <p class="text-blue-600 font-bold text-xs uppercase tracking-widest">Premium Travel & Logistics</p>
+            <h2 class="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none">Horizon Tours</h2>
+            <p class="text-blue-600 font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Premium Travel Solutions & Logistics</p>
         </div>
         <div class="text-right">
-            <h3 class="text-3xl font-black text-slate-200 uppercase leading-none">Invoice</h3>
-            <p class="text-slate-700 font-bold mt-2">Inv No: <span id="print-inv-no">#---</span></p>
-            <p class="text-slate-500 text-sm">Date: <span id="print-inv-date">---</span></p>
+            <h3 class="text-4xl font-black text-slate-100 uppercase leading-none">Invoice</h3>
+            <p class="text-slate-700 font-bold mt-2">Bill No: <span id="print-inv-no">#---</span></p>
+            <p class="text-slate-500 text-xs">Date: <span id="print-inv-date">---</span></p>
         </div>
     </div>
 
-    <div class="grid grid-cols-2 mt-12 gap-16 border-b pb-8">
+    <div class="grid grid-cols-2 mt-12 gap-16 border-b pb-10">
         <div>
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Billed To</h4>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Guest Details</h4>
             <p id="print-name" class="text-xl font-bold text-slate-900">Name Placeholder</p>
             <p id="print-phone" class="text-slate-500 mt-1">Phone Placeholder</p>
         </div>
         <div class="text-right">
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Trip Summary</h4>
-            <p id="print-route" class="text-slate-700 font-bold">Route Placeholder</p>
-            <p class="text-slate-500 text-xs mt-1 uppercase"><span id="print-vehicle">Vehicle</span> | <span id="print-veh-no">---</span></p>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Itinerary</h4>
+            <p id="print-route" class="text-slate-700 font-bold italic">Route Placeholder</p>
+            <p class="text-slate-500 text-[10px] mt-1 uppercase font-bold tracking-tighter"><span id="print-vehicle">Vehicle</span> | <span id="print-veh-no">---</span></p>
         </div>
     </div>
 
-    <table class="w-full mt-10 text-left border-collapse">
+    <table class="w-full mt-12 text-left border-collapse">
         <thead>
             <tr class="border-b-2 border-slate-900">
-                <th class="py-4 font-black text-[10px] uppercase">Description of Service</th>
-                <th class="py-4 text-right font-black text-[10px] uppercase">Amount</th>
+                <th class="py-4 font-black text-[10px] uppercase tracking-widest text-slate-400">Description of Service</th>
+                <th class="py-4 text-right font-black text-[10px] uppercase tracking-widest text-slate-400">Amount</th>
             </tr>
         </thead>
-        <tbody class="text-slate-700 divide-y divide-slate-100">
-            <tr><td class="py-5">Base Package Charges</td><td id="print-base" class="py-5 text-right font-semibold">$0.00</td></tr>
-            <tr><td class="py-5">Extra KM / Tolls / Misc Charges</td><td id="print-extras" class="py-5 text-right font-semibold">$0.00</td></tr>
+        <tbody class="text-slate-800 divide-y divide-slate-100">
+            <tr><td class="py-6">Standard Tour Package Charges</td><td id="print-base" class="py-6 text-right font-bold">₹0.00</td></tr>
+            <tr><td class="py-6">Additional KM / Tolls / Parking / Misc</td><td id="print-extras" class="py-6 text-right font-bold">₹0.00</td></tr>
             <tr class="bg-slate-900 text-white font-bold">
-                <td class="p-5 uppercase text-xs tracking-widest">Grand Total (Inc. <span id="print-tax-perc">0</span>% Tax)</td>
-                <td id="print-total" class="p-5 text-right text-3xl font-black">$0.00</td>
+                <td class="p-6 uppercase text-[10px] tracking-[0.3em]">Grand Total (Inc. <span id="print-tax-perc">0</span>% GST)</td>
+                <td id="print-total" class="p-6 text-right text-4xl font-black">₹0.00</td>
             </tr>
         </tbody>
     </table>
 
     <div class="mt-20 border-t pt-8 grid grid-cols-2 gap-12">
         <div class="text-[9px] text-slate-400 leading-relaxed italic">
-            * Terms: Cancellation fees apply as per company policy. Tolls and parking are subject to actuals. Horizon Tours is not liable for loss of baggage. All disputes subject to local jurisdiction.
+            * Cancellation policy: 50% refund if cancelled 24hrs prior. Tolls and state taxes at actuals unless fixed. Horizon Tours is not liable for personal belongings. All disputes are subject to local jurisdiction.
         </div>
         <div class="border-t border-slate-300 text-center pt-2 self-start">
-            <p class="font-bold text-[10px] uppercase">Authorized Signatory</p>
+            <p class="font-bold text-[10px] uppercase tracking-widest">Authorized Signatory</p>
         </div>
     </div>
 </div>
 
 <div id="duty-canvas" class="hidden bill-paper bg-white mx-auto my-10 p-12 w-[210mm] border-2 border-dashed border-slate-300">
-    <div class="flex justify-between items-center border-b-2 border-slate-800 pb-6 mb-8">
-        <div><h2 class="text-2xl font-black uppercase">Horizon Duty Slip</h2><p class="text-[10px] italic">Driver Copy</p></div>
-        <div class="text-right font-bold"><p>Slip: <span id="duty-no">#---</span></p><p id="duty-date" class="text-xs">Date</p></div>
+    <div class="flex justify-between items-center border-b-2 border-slate-800 pb-6 mb-10">
+        <div><h2 class="text-2xl font-black uppercase tracking-tighter">Horizon - Duty Slip</h2><p class="text-[9px] font-bold text-slate-400">DRIVER RECORD COPY</p></div>
+        <div class="text-right font-bold"><p>SLIP: <span id="duty-no">#---</span></p><p id="duty-date" class="text-xs text-slate-500">Date</p></div>
     </div>
     <div class="grid grid-cols-2 gap-8 border-b pb-8 mb-8 text-sm">
-        <div><p class="text-[10px] font-bold text-slate-400 uppercase">Guest</p><p id="duty-guest" class="font-bold text-lg">---</p></div>
-        <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase">Vehicle & Driver</p><p id="duty-veh-info" class="font-bold">---</p><p id="duty-driver-name" class="text-xs">---</p></div>
+        <div><p class="text-[10px] font-black text-slate-300 uppercase mb-1">Guest Name</p><p id="duty-guest" class="font-black text-xl">---</p></div>
+        <div class="text-right"><p class="text-[10px] font-black text-slate-300 uppercase mb-1">Vehicle / Driver</p><p id="duty-veh-info" class="font-bold">---</p><p id="duty-driver-name" class="text-xs text-blue-600 font-bold">---</p></div>
     </div>
     <table class="w-full border-collapse border border-slate-300">
-        <thead><tr class="bg-slate-100 text-[10px]"><th class="border border-slate-300 p-2">RECORD</th><th class="border border-slate-300 p-2 text-center">START</th><th class="border border-slate-300 p-2 text-center">END</th><th class="border border-slate-300 p-2 text-center">TOTAL</th></tr></thead>
+        <thead><tr class="bg-slate-50 text-[10px] uppercase"><th class="border border-slate-300 p-3">Trip Record</th><th class="border border-slate-300 p-3 text-center">Opening</th><th class="border border-slate-300 p-3 text-center">Closing</th><th class="border border-slate-300 p-3 text-center">Total</th></tr></thead>
         <tbody>
-            <tr><td class="border border-slate-300 p-6 font-bold text-sm">Odometer KM</td><td id="duty-start-km" class="border border-slate-300 p-6 text-center text-xl font-mono">---</td><td id="duty-end-km" class="border border-slate-300 p-6 text-center text-xl font-mono">---</td><td id="duty-total-km" class="border border-slate-300 p-6 text-center font-black">---</td></tr>
-            <tr><td class="border border-slate-300 p-6 font-bold text-sm">Reporting Time</td><td class="border border-slate-300 p-6"></td><td class="border border-slate-300 p-6"></td><td class="border border-slate-300 p-6"></td></tr>
+            <tr><td class="border border-slate-300 p-8 font-bold text-sm">Odometer (KM)</td><td id="duty-start-km" class="border border-slate-300 p-8 text-center text-2xl font-mono">---</td><td id="duty-end-km" class="border border-slate-300 p-8 text-center text-2xl font-mono">---</td><td id="duty-total-km" class="border border-slate-300 p-8 text-center font-black text-xl">---</td></tr>
+            <tr><td class="border border-slate-300 p-8 font-bold text-sm">Duty Timings</td><td class="border border-slate-300 p-8"></td><td class="border border-slate-300 p-8"></td><td class="border border-slate-300 p-8"></td></tr>
         </tbody>
     </table>
-    <div class="mt-20 grid grid-cols-2 gap-20">
-        <div class="border-t border-slate-300 pt-2 text-center text-[10px] uppercase font-bold">Guest Signature</div>
-        <div class="border-t border-slate-300 pt-2 text-center text-[10px] uppercase font-bold">Driver Signature</div>
+    <div class="mt-24 grid grid-cols-2 gap-20">
+        <div class="border-t border-slate-300 pt-3 text-center text-[10px] uppercase font-bold text-slate-400 tracking-widest">Guest Signature</div>
+        <div class="border-t border-slate-300 pt-3 text-center text-[10px] uppercase font-bold text-slate-400 tracking-widest">Driver Signature</div>
     </div>
 </div>
 
 <div id="summary-canvas" class="hidden bill-paper bg-white mx-auto my-10 p-12 w-[210mm] border">
-    <h1 class="text-2xl font-black mb-1">BUSINESS PERFORMANCE SUMMARY</h1>
-    <p class="text-xs text-slate-500 mb-8 border-b-2 pb-2 uppercase font-bold tracking-widest">Horizon Tours & Logistics</p>
-    <div class="flex justify-between text-[10px] font-bold mb-6">
-        <p>PERIOD: <span id="sum-period">---</span></p>
-        <p>GENERATED: <span id="sum-gen">---</span></p>
+    <div class="border-b-2 border-slate-900 pb-6 mb-10 flex justify-between items-end">
+        <div><h1 class="text-3xl font-black text-slate-800">FINANCIAL REPORT</h1><p class="text-[10px] font-bold text-blue-600 tracking-widest uppercase">Horizon Tours Business Analytics</p></div>
+        <div class="text-right text-[10px] font-bold uppercase"><p>Period: <span id="sum-period">---</span></p><p>Run At: <span id="sum-gen">---</span></p></div>
     </div>
     <table class="w-full text-[10px] text-left border-collapse">
-        <thead class="bg-slate-100"><tr class="border-b-2 border-slate-800"><th class="p-2">ID</th><th class="p-2">GUEST / TRIP</th><th class="p-2">DRIVER</th><th class="p-2 text-right">REVENUE</th><th class="p-2 text-right">PROFIT</th></tr></thead>
-        <tbody id="sum-body" class="divide-y"></tbody>
+        <thead class="bg-slate-900 text-white"><tr class="uppercase tracking-tighter"><th class="p-3">ID</th><th class="p-3">Guest / Route</th><th class="p-3">Driver</th><th class="p-3 text-right">Revenue (₹)</th><th class="p-3 text-right">Profit (₹)</th></tr></thead>
+        <tbody id="sum-body" class="divide-y divide-slate-100"></tbody>
     </table>
-    <div class="mt-12 grid grid-cols-2 gap-4">
-        <div class="p-4 bg-slate-50 rounded-xl border"><p class="text-[8px] font-bold text-slate-400">TOTAL REVENUE</p><p id="sum-rev" class="text-xl font-black">0</p></div>
-        <div class="p-4 bg-blue-600 rounded-xl text-white"><p class="text-[8px] font-bold text-blue-200">TOTAL NET PROFIT</p><p id="sum-prof" class="text-xl font-black">0</p></div>
+    <div class="mt-12 grid grid-cols-2 gap-6">
+        <div class="p-8 bg-slate-50 rounded-2xl border border-slate-100 text-center"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Total Gross Revenue</p><p id="sum-rev" class="text-3xl font-black text-slate-800">₹0</p></div>
+        <div class="p-8 bg-blue-600 rounded-2xl text-white text-center shadow-xl"><p class="text-[10px] font-bold text-blue-100 uppercase mb-2">Total Net Profit</p><p id="sum-prof" class="text-3xl font-black">₹0</p></div>
     </div>
 </div>
 
-<div class="flex justify-center gap-4 no-print pb-10 fixed bottom-4 left-0 right-0 z-[50]">
-    <button onclick="window.print()" class="bg-blue-600 text-white px-8 py-4 rounded-full font-black shadow-2xl hover:scale-105 transition-all">🖨️ PRINT FINAL BILL</button>
-    <button onclick="printDutySlip()" class="bg-amber-500 text-white px-8 py-4 rounded-full font-black shadow-2xl hover:scale-105 transition-all">📋 PRINT DUTY SLIP</button>
+<div class="flex justify-center gap-4 no-print fixed bottom-6 left-0 right-0 z-[50]">
+    <button onclick="window.print()" class="bg-blue-600 text-white px-10 py-5 rounded-full font-black shadow-2xl hover:scale-105 transition-all">🖨️ PRINT FINAL BILL</button>
+    <button onclick="printDutySlip()" class="bg-amber-500 text-white px-10 py-5 rounded-full font-black shadow-2xl hover:scale-105 transition-all">📋 PRINT DUTY SLIP</button>
 </div>
 
 <script type="module">
@@ -243,7 +250,7 @@
   const billsCol = collection(db, "bills");
   window.billHistory = [];
 
-  // AUTH LOGIC
+  // AUTH
   window.handleLogin = async () => {
     const e = document.getElementById('login-email').value;
     const p = document.getElementById('login-password').value;
@@ -256,7 +263,7 @@
     if(u) loadCloudData();
   });
 
-  // DATA SYNC
+  // CLOUD LOAD
   function loadCloudData() {
     onSnapshot(query(billsCol, orderBy("createdAt", "desc")), snap => {
       window.billHistory = [];
@@ -266,15 +273,15 @@
         const b = doc.data();
         window.billHistory.push(b);
         tbody.innerHTML += `
-          <tr class="hover:bg-slate-50 border-b">
-            <td class="p-3 text-slate-400 font-mono text-xs">#${b.id}</td>
-            <td class="p-3">
+          <tr class="hover:bg-slate-50 transition border-b group">
+            <td class="p-4 text-slate-400 font-mono text-xs">#${b.id}</td>
+            <td class="p-4">
               <div class="font-bold text-slate-800">${b.name}</div>
-              <div class="text-[9px] text-slate-400">Driver: ${b.driver || 'N/A'}</div>
+              <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter italic">${b.route}</div>
             </td>
-            <td class="p-3 text-right">
-              <div class="font-black text-blue-600">$${b.total.toFixed(2)}</div>
-              <div class="text-[9px] text-green-600 font-bold">Profit: $${(b.margin || 0).toFixed(2)}</div>
+            <td class="p-4 text-right">
+              <div class="font-black text-blue-600">₹${b.total.toLocaleString('en-IN')}</div>
+              <div class="text-[9px] text-green-600 font-black">₹${(b.margin || 0).toLocaleString('en-IN')}</div>
             </td>
           </tr>`;
       });
@@ -283,17 +290,17 @@
     });
   }
 
-  // CALCULATION LOGIC
+  // CALCS
   window.updatePreview = () => {
     const d = {
       id: window.currentID,
       name: document.getElementById('guest-name').value || "Guest Name",
       phone: document.getElementById('guest-phone').value || "",
-      route: document.getElementById('itinerary').value || "Itinerary",
+      route: document.getElementById('itinerary').value || "Manual Trip Route",
       date: document.getElementById('tour-date').value || new Date().toLocaleDateString(),
       vehicle: document.getElementById('vehicle-type').value,
-      vehNo: document.getElementById('vehicle-no').value || "N/A",
-      driver: document.getElementById('driver-name').value || "Not Assigned",
+      vehNo: document.getElementById('vehicle-no').value || "---",
+      driver: document.getElementById('driver-name').value || "---",
       startKm: parseFloat(document.getElementById('start-km').value) || 0,
       endKm: parseFloat(document.getElementById('end-km').value) || 0,
       fixed: parseFloat(document.getElementById('fixed-limit').value) || 0,
@@ -311,25 +318,26 @@
     d.total = subtotal * (1 + (d.tax / 100));
     d.margin = (d.base + kmCost) - d.incentive;
 
-    // Fill UI
+    // UI UPDATES
     document.getElementById('print-name').innerText = d.name;
     document.getElementById('print-phone').innerText = d.phone;
     document.getElementById('print-route').innerText = d.route + (totalRun > 0 ? ` (${totalRun} KM)` : "");
     document.getElementById('print-inv-date').innerText = d.date;
     document.getElementById('print-vehicle').innerText = d.vehicle;
     document.getElementById('print-veh-no').innerText = d.vehNo;
-    document.getElementById('print-base').innerText = "$" + d.base.toFixed(2);
-    document.getElementById('print-extras').innerText = "$" + (d.extra + kmCost).toFixed(2);
+    document.getElementById('print-base').innerText = "₹" + d.base.toLocaleString('en-IN');
+    document.getElementById('print-extras').innerText = "₹" + (d.extra + kmCost).toLocaleString('en-IN');
     document.getElementById('print-tax-perc').innerText = d.tax;
-    document.getElementById('print-total').innerText = "$" + d.total.toFixed(2);
+    document.getElementById('print-total').innerText = "₹" + d.total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    document.getElementById('margin-display').innerText = "₹" + d.margin.toLocaleString('en-IN');
 
     return d;
   };
 
   window.saveToBillBook = async () => {
     const data = updatePreview();
-    if(!document.getElementById('guest-name').value) return alert("Guest Name Required");
-    try { await addDoc(billsCol, { ...data, createdAt: new Date() }); alert("Cloud Updated!"); }
+    if(!document.getElementById('guest-name').value) return alert("Enter Guest Name");
+    try { await addDoc(billsCol, { ...data, createdAt: new Date() }); alert("Cloud Sync Success!"); }
     catch(e) { alert("Error: " + e.message); }
   };
 
@@ -366,13 +374,13 @@
 
     filtered.forEach(b => {
       tr += b.total; tp += b.margin;
-      body.innerHTML += `<tr><td class="p-2">${b.id}</td><td class="p-2">${b.name}<br><span class="text-[8px]">${b.route}</span></td><td class="p-2">${b.driver}</td><td class="p-2 text-right">$${b.total.toFixed(2)}</td><td class="p-2 text-right">$${b.margin.toFixed(2)}</td></tr>`;
+      body.innerHTML += `<tr><td class="p-3">${b.id}</td><td class="p-3"><b>${b.name}</b><br>${b.route}</td><td class="p-3">${b.driver}</td><td class="p-3 text-right">₹${b.total.toLocaleString('en-IN')}</td><td class="p-3 text-right font-bold text-green-600">₹${b.margin.toLocaleString('en-IN')}</td></tr>`;
     });
 
-    document.getElementById('sum-period').innerText = `${start || 'All'} to ${end || 'All'}`;
-    document.getElementById('sum-gen').innerText = new Date().toLocaleDateString();
-    document.getElementById('sum-rev').innerText = "$" + tr.toFixed(2);
-    document.getElementById('sum-prof').innerText = "$" + tp.toFixed(2);
+    document.getElementById('sum-period').innerText = `${start || 'Start'} to ${end || 'Present'}`;
+    document.getElementById('sum-gen').innerText = new Date().toLocaleString();
+    document.getElementById('sum-rev').innerText = "₹" + tr.toLocaleString('en-IN');
+    document.getElementById('sum-prof').innerText = "₹" + tp.toLocaleString('en-IN');
 
     document.getElementById('bill-canvas').classList.add('hidden');
     document.getElementById('summary-canvas').classList.remove('hidden');
@@ -383,17 +391,17 @@
   window.sendWhatsApp = () => {
     const d = updatePreview();
     const cleanPhone = d.phone.replace(/\D/g,'');
-    if(!cleanPhone) return alert("Enter Phone Number");
+    if(!cleanPhone) return alert("Phone Number Required");
     const msg = `Hi ${d.name}, your invoice from Horizon Tours (#${d.id}) is ready. Total: ${document.getElementById('print-total').innerText}. Route: ${d.route}. Thank you!`;
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   window.exportToCSV = () => {
-    let csv = "ID,Guest,Date,Driver,Total,Profit\n" + window.billHistory.map(b => `${b.id},${b.name},${b.date},${b.driver},${b.total},${b.margin}`).join("\n");
+    let csv = "ID,Guest,Date,Driver,Revenue,Profit\n" + window.billHistory.map(b => `${b.id},${b.name},${b.date},${b.driver},${b.total},${b.margin}`).join("\n");
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'Horizon_Book_Export.csv'; a.click();
+    a.href = url; a.download = 'Horizon_Cloud_Export.csv'; a.click();
   };
 </script>
 
