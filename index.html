@@ -3,93 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Horizon ERP | Stealth Print</title>
+    <title>Horizon ERP | Final Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 1. HIDE PREVIEW ON SCREEN */
+        /* Stealth Print Logic */
         #bill-canvas { display: none; }
-
-        /* 2. SHOW PREVIEW ONLY ON PRINT */
         @media print {
             .no-print { display: none !important; }
             #bill-canvas { 
                 display: block !important; 
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100% !important;
-                padding: 40px !important;
-                background: white;
+                position: absolute; top: 0; left: 0; width: 100%; padding: 40px; background: white;
             }
-            body { background: white; }
         }
-
-        /* Navigation Styles */
+        /* UI Polish */
         .active-nav { color: #2563eb !important; border-top: 3px solid #2563eb; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
         @media (max-width: 1024px) { .mobile-hidden { display: none !important; } }
     </style>
 </head>
 <body class="bg-slate-100 font-sans pb-24">
 
 <div id="login-overlay" class="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
-        <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase">Horizon Login</h2>
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+        <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase text-center">Horizon Access</h2>
         <input type="email" id="login-email" placeholder="Email" class="w-full p-4 mb-4 bg-slate-50 rounded-2xl border outline-none">
         <input type="password" id="login-password" placeholder="Password" class="w-full p-4 mb-6 bg-slate-50 rounded-2xl border outline-none">
-        <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest">Authorize</button>
+        <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest">Login</button>
     </div>
 </div>
 
 <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-[100] flex justify-around shadow-2xl">
-    <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400 font-black text-[10px] uppercase">Form</button>
-    <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400 font-black text-[10px] uppercase">History</button>
-    <button onclick="window.print()" class="flex flex-col items-center py-4 flex-1 text-blue-600 font-black text-[10px] uppercase">Print Bill</button>
+    <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400 font-black text-[10px] uppercase">New Trip</button>
+    <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400 font-black text-[10px] uppercase">Bill Book</button>
+    <button onclick="window.print()" class="flex flex-col items-center py-4 flex-1 text-blue-600 font-black text-[10px] uppercase">Print PDF</button>
 </nav>
 
 <div class="container mx-auto p-4 lg:p-8 no-print">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-black text-slate-800 tracking-tighter">HORIZON <span class="text-blue-600">ERP</span></h1>
-        <button onclick="handleLogout()" class="text-[10px] font-bold text-red-500 border border-red-100 px-2 py-1 rounded uppercase">Log Out</button>
+        <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Horizon <span class="text-blue-600">ERP</span></h1>
+        <button onclick="handleLogout()" class="text-[10px] font-bold text-red-500 border border-red-100 px-3 py-1 rounded uppercase">Logout</button>
     </div>
 
     <div class="grid lg:grid-cols-2 gap-8">
         <div id="tab-form" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-            <h2 class="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-[0.2em]">New Booking / Entry</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Entry Details</h2>
+                <button onclick="resetForm()" class="text-[10px] font-bold text-blue-500 underline uppercase">New Trip</button>
+            </div>
             <form id="billing-form" class="space-y-4">
-                <input type="text" id="guest-name" oninput="updatePreview()" placeholder="Guest Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                <input type="tel" id="guest-phone" placeholder="WhatsApp Number" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
-                <input type="text" id="itinerary" oninput="updatePreview()" placeholder="Route Details" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+                <input type="text" id="guest-name" oninput="updatePreview()" placeholder="Guest Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+                <input type="text" id="itinerary" oninput="updatePreview()" placeholder="Route / Destination" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
                 
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="date" id="tour-date" onchange="updatePreview()" class="p-4 bg-slate-50 rounded-2xl text-sm">
-                    <select id="vehicle-type" onchange="updatePreview()" class="p-4 bg-slate-50 rounded-2xl text-sm font-bold text-blue-600">
-                        <option value="Sedan">Sedan (4+1)</option>
-                        <option value="SUV">SUV (6+1)</option>
-                        <option value="Tempo">Tempo (12+1)</option>
-                    </select>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Start KM</label>
+                        <input type="number" id="start-km" oninput="updatePreview()" placeholder="0" class="w-full p-4 bg-slate-50 rounded-2xl text-xs">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">End KM</label>
+                        <input type="number" id="end-km" oninput="updatePreview()" placeholder="0" class="w-full p-4 bg-slate-50 rounded-2xl text-xs">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Limit</label>
+                        <input type="number" id="fixed-limit" oninput="updatePreview()" placeholder="80" class="w-full p-4 bg-slate-50 rounded-2xl text-xs">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="base-rate" oninput="updatePreview()" placeholder="Base Price ₹" class="p-4 bg-blue-50 text-blue-700 font-black rounded-2xl outline-none">
-                    <input type="number" id="extras" oninput="updatePreview()" placeholder="Tolls/Permit ₹" class="p-4 bg-slate-50 rounded-2xl outline-none">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Base Fare ₹</label>
+                        <input type="number" id="base-rate" oninput="updatePreview()" placeholder="2500" class="w-full p-4 bg-blue-50 text-blue-700 font-black rounded-2xl outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Rate/Extra KM</label>
+                        <input type="number" id="extra-km-rate" oninput="updatePreview()" placeholder="15" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+                    </div>
                 </div>
 
-                <div class="p-4 bg-green-50 border border-green-100 rounded-2xl flex justify-between items-center">
-                    <span class="text-[10px] font-black text-green-700 uppercase tracking-widest">Total Amount</span>
-                    <span id="total-display" class="text-xl font-black text-green-700">₹0</span>
+                <input type="number" id="extras" oninput="updatePreview()" placeholder="Tolls / Parking / Permits ₹" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+
+                <div class="p-4 bg-blue-600 rounded-2xl flex justify-between items-center text-white shadow-lg">
+                    <div class="flex flex-col">
+                        <span class="text-[9px] font-black uppercase opacity-70">Total Payable</span>
+                        <span id="total-display" class="text-2xl font-black">₹0</span>
+                    </div>
+                    <div class="text-right">
+                        <span id="extra-km-display" class="text-[10px] font-bold block italic">+0 Extra KM</span>
+                    </div>
                 </div>
 
-                <div class="flex flex-col gap-2 pt-4">
-                    <button type="button" id="btn-save" onclick="saveToBillBook()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase shadow-xl hover:bg-blue-700 transition">Sync to Cloud</button>
-                    <button type="button" id="btn-update" onclick="updateExistingBill()" class="hidden w-full bg-indigo-600 text-white p-5 rounded-2xl font-black uppercase shadow-xl">Update History</button>
-                    <button type="button" onclick="window.print()" class="w-full bg-slate-800 text-white p-4 rounded-2xl font-black uppercase text-xs">🖨️ Open Print Dialog</button>
+                <div class="flex flex-col gap-2 pt-2">
+                    <button type="button" id="btn-save" onclick="saveToBillBook()" class="w-full bg-slate-800 text-white p-5 rounded-2xl font-black uppercase shadow-xl hover:bg-black">Sync Cloud</button>
+                    <button type="button" id="btn-update" onclick="updateExistingBill()" class="hidden w-full bg-indigo-600 text-white p-5 rounded-2xl font-black uppercase">Update History</button>
                 </div>
             </form>
         </div>
 
         <div id="tab-list" class="mobile-hidden lg:block bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[650px]">
-            <div class="relative mb-6">
-                <input type="text" id="search-input" onkeyup="filterBills()" placeholder="Search bookings..." class="w-full p-4 pl-12 bg-slate-50 rounded-2xl border-none text-sm">
+            <div class="relative mb-4">
+                <input type="text" id="search-input" onkeyup="filterBills()" placeholder="Search Name or Bill #..." class="w-full p-4 pl-12 bg-slate-50 rounded-2xl border-none text-sm">
                 <span class="absolute left-4 top-4 opacity-30">🔍</span>
             </div>
             <div class="overflow-y-auto flex-1 scrollbar-hide">
@@ -101,54 +113,22 @@
     </div>
 </div>
 
-<div id="bill-canvas" class="p-10">
+<div id="bill-canvas">
     <div class="flex justify-between items-start border-b-4 border-blue-600 pb-8 mb-8">
-        <div>
-            <h2 class="text-4xl font-black uppercase leading-none">Horizon Tours</h2>
-            <p class="text-blue-600 font-bold text-[10px] tracking-widest uppercase mt-2">Premium Travel Solutions Kerala</p>
-        </div>
-        <div class="text-right">
-            <p class="font-black text-2xl" id="print-inv-no">#---</p>
-            <p id="print-inv-date" class="text-xs text-slate-400 font-bold uppercase">---</p>
-        </div>
+        <div><h2 class="text-4xl font-black uppercase">Horizon Tours</h2><p class="text-blue-600 font-bold text-[10px] uppercase mt-2">Premium Travel Solutions Kerala</p></div>
+        <div class="text-right font-black"><p class="text-2xl" id="print-inv-no">#---</p><p id="print-inv-date" class="text-xs text-slate-400">---</p></div>
     </div>
-
     <div class="grid grid-cols-2 gap-10 border-b pb-8 mb-8">
-        <div>
-            <h4 class="text-[9px] font-black text-slate-300 uppercase mb-2">Guest Information</h4>
-            <p id="print-name" class="text-xl font-bold uppercase">---</p>
-            <p id="print-phone" class="text-slate-500 text-sm">---</p>
-        </div>
-        <div class="text-right">
-            <h4 class="text-[9px] font-black text-slate-300 uppercase mb-2">Route Details</h4>
-            <p id="print-route" class="font-bold text-slate-800 italic">---</p>
-            <p id="print-vehicle" class="text-xs text-slate-400 font-bold uppercase mt-1">---</p>
-        </div>
+        <div><h4 class="text-[9px] font-black text-slate-300 uppercase mb-1">Guest Details</h4><p id="print-name" class="text-xl font-bold uppercase">---</p></div>
+        <div class="text-right"><h4 class="text-[9px] font-black text-slate-300 uppercase mb-1">Route</h4><p id="print-route" class="font-bold text-slate-800 italic text-right">---</p></div>
     </div>
-
-    <table class="w-full mb-16">
-        <thead class="text-left text-[10px] font-black text-slate-300 uppercase border-b">
-            <tr><th class="py-4">Service Item</th><th class="py-4 text-right">Amount (INR)</th></tr>
-        </thead>
-        <tbody class="text-lg font-medium text-slate-700 divide-y divide-slate-50">
-            <tr><td class="py-6">Standard Package / Day Charges</td><td id="print-base" class="py-6 text-right font-bold">₹0</td></tr>
-            <tr><td class="py-6">Additional Extras (Tolls, Parking, Permits)</td><td id="print-extras" class="py-6 text-right font-bold">₹0</td></tr>
-            <tr class="bg-slate-900 text-white">
-                <td class="p-8 font-black uppercase tracking-widest text-[11px]">Final Total Amount</td>
-                <td id="print-total" class="p-8 text-right text-4xl font-black">₹0</td>
-            </tr>
-        </tbody>
+    <table class="w-full mb-16 text-lg">
+        <tr class="border-b"><td class="py-4">Base Package Fare</td><td id="print-base" class="py-4 text-right font-bold">₹0</td></tr>
+        <tr class="border-b"><td class="py-4">Extra KM Charges (<span id="print-extra-km">0</span> KM)</td><td id="print-extra-cost" class="py-4 text-right font-bold">₹0</td></tr>
+        <tr class="border-b"><td class="py-4">Tolls / Parking / Permits</td><td id="print-extras" class="py-4 text-right font-bold">₹0</td></tr>
+        <tr class="bg-slate-900 text-white"><td class="p-8 font-black uppercase text-xs">Grand Total</td><td id="print-total" class="p-8 text-right text-4xl font-black">₹0</td></tr>
     </table>
-
-    <div class="mt-20 flex justify-between items-end">
-        <div class="text-[9px] text-slate-400 w-1/2 italic border-l-2 pl-4">
-            * This is a digital invoice from Horizon Tours ERP.<br>
-            * All prices include standard service taxes.
-        </div>
-        <div class="text-center border-t-2 border-slate-100 pt-2 w-1/3">
-            <p class="font-black text-[9px] uppercase tracking-widest">Manager Signature</p>
-        </div>
-    </div>
+    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mt-20 border-t pt-4">Professional Transport Services</div>
 </div>
 
 <script type="module">
@@ -156,7 +136,6 @@
   import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  // Your Firebase Configuration (From previous steps)
   const firebaseConfig = {
     apiKey: "AIzaSyB3fkjzRYJmA9h3W6k0vp7JceUc4GW3sYQ",
     authDomain: "tour-billing.firebaseapp.com",
@@ -174,10 +153,10 @@
   window.billHistory = [];
   let activeFirestoreId = null;
 
-  // LOGIN/LOGOUT
+  // AUTH
   window.handleLogin = async () => {
     try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); } 
-    catch(e) { alert("Wrong Login!"); }
+    catch(e) { alert("Invalid Credentials"); }
   };
   window.handleLogout = () => signOut(auth);
   onAuthStateChanged(auth, u => {
@@ -185,7 +164,49 @@
     if(u) loadCloudData();
   });
 
-  // DATA LOAD & EDIT
+  // KM & PRICE LOGIC
+  window.updatePreview = () => {
+    const sKm = parseFloat(document.getElementById('start-km').value) || 0;
+    const eKm = parseFloat(document.getElementById('end-km').value) || 0;
+    const limit = parseFloat(document.getElementById('fixed-limit').value) || 0;
+    const rate = parseFloat(document.getElementById('extra-km-rate').value) || 0;
+    const base = parseFloat(document.getElementById('base-rate').value) || 0;
+    const misc = parseFloat(document.getElementById('extras').value) || 0;
+
+    const extraKm = Math.max(0, (eKm - sKm) - limit);
+    const extraCost = extraKm * rate;
+    const total = base + extraCost + misc;
+
+    document.getElementById('total-display').innerText = "₹" + total.toLocaleString('en-IN');
+    document.getElementById('extra-km-display').innerText = `+${extraKm} Extra KM (at ₹${rate}/km)`;
+    
+    // Update Print Version
+    document.getElementById('print-name').innerText = document.getElementById('guest-name').value || "Guest";
+    document.getElementById('print-route').innerText = document.getElementById('itinerary').value || "Manual Trip";
+    document.getElementById('print-base').innerText = "₹" + base.toLocaleString('en-IN');
+    document.getElementById('print-extra-km').innerText = extraKm;
+    document.getElementById('print-extra-cost').innerText = "₹" + extraCost.toLocaleString('en-IN');
+    document.getElementById('print-extras').innerText = "₹" + misc.toLocaleString('en-IN');
+    document.getElementById('print-total').innerText = "₹" + total.toLocaleString('en-IN');
+    document.getElementById('print-inv-date').innerText = new Date().toLocaleDateString();
+
+    return { base, extraKm, extraCost, misc, total, sKm, eKm, limit, rate };
+  };
+
+  // CLOUD OPS
+  window.saveToBillBook = async () => {
+    const calc = updatePreview();
+    if(!document.getElementById('guest-name').value) return alert("Guest Name Required");
+    await addDoc(billsCol, { id: window.currentID, name: document.getElementById('guest-name').value, route: document.getElementById('itinerary').value, ...calc, createdAt: new Date() });
+    alert("Trip Saved!"); resetForm();
+  };
+
+  window.updateExistingBill = async () => {
+    const calc = updatePreview();
+    await updateDoc(doc(db, "bills", activeFirestoreId), { ...calc, name: document.getElementById('guest-name').value, route: document.getElementById('itinerary').value, updatedAt: new Date() });
+    alert("Record Updated!"); resetForm();
+  };
+
   function loadCloudData() {
     onSnapshot(query(billsCol, orderBy("createdAt", "desc")), snap => {
       window.billHistory = [];
@@ -201,7 +222,7 @@
           </tr>`;
       });
       if(!activeFirestoreId) window.currentID = window.billHistory.length > 0 ? (Math.max(...window.billHistory.map(x => x.id)) + 1) : 1001;
-      updatePreview();
+      document.getElementById('print-inv-no').innerText = "#" + window.currentID;
     });
   }
 
@@ -209,55 +230,18 @@
     const b = window.billHistory.find(x => x.firebaseId === fid);
     activeFirestoreId = fid;
     document.getElementById('guest-name').value = b.name;
-    document.getElementById('guest-phone').value = b.phone;
     document.getElementById('itinerary').value = b.route;
-    document.getElementById('tour-date').value = b.date;
+    document.getElementById('start-km').value = b.sKm;
+    document.getElementById('end-km').value = b.eKm;
+    document.getElementById('fixed-limit').value = b.limit;
+    document.getElementById('extra-km-rate').value = b.rate;
     document.getElementById('base-rate').value = b.base;
-    document.getElementById('extras').value = b.extra;
+    document.getElementById('extras').value = b.misc;
     window.currentID = b.id;
     document.getElementById('btn-save').classList.add('hidden');
     document.getElementById('btn-update').classList.remove('hidden');
     updatePreview();
     if(window.innerWidth < 1024) switchTab('form');
-  };
-
-  // LOGIC
-  window.updatePreview = () => {
-    const d = {
-      id: window.currentID || 1001,
-      name: document.getElementById('guest-name').value || "Guest",
-      phone: document.getElementById('guest-phone').value || "---",
-      route: document.getElementById('itinerary').value || "Manual Entry",
-      date: document.getElementById('tour-date').value || "--",
-      vehicle: document.getElementById('vehicle-type').value,
-      base: parseFloat(document.getElementById('base-rate').value) || 0,
-      extra: parseFloat(document.getElementById('extras').value) || 0
-    };
-    d.total = d.base + d.extra;
-
-    document.getElementById('total-display').innerText = "₹" + d.total.toLocaleString('en-IN');
-    document.getElementById('print-inv-no').innerText = "#" + d.id;
-    document.getElementById('print-inv-date').innerText = "DATE: " + d.date;
-    document.getElementById('print-name').innerText = d.name;
-    document.getElementById('print-phone').innerText = d.phone;
-    document.getElementById('print-route').innerText = d.route;
-    document.getElementById('print-vehicle').innerText = d.vehicle;
-    document.getElementById('print-base').innerText = "₹" + d.base.toLocaleString('en-IN');
-    document.getElementById('print-extras').innerText = "₹" + d.extra.toLocaleString('en-IN');
-    document.getElementById('print-total').innerText = "₹" + d.total.toLocaleString('en-IN');
-    return d;
-  };
-
-  window.saveToBillBook = async () => {
-    const data = updatePreview();
-    await addDoc(billsCol, { ...data, createdAt: new Date() });
-    alert("Synced!"); resetForm();
-  };
-
-  window.updateExistingBill = async () => {
-    const data = updatePreview();
-    await updateDoc(doc(db, "bills", activeFirestoreId), { ...data, updatedAt: new Date() });
-    alert("History Updated!"); resetForm();
   };
 
   window.resetForm = () => {
