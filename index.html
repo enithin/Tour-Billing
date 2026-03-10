@@ -3,131 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Horizon ERP | Mobile Edition</title>
+    <title>Horizon ERP | Stealth Print</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
-        .active-nav { color: #2563eb !important; border-top: 3px solid #2563eb; }
-        .bill-paper { box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 297mm; background: white; }
+        /* 1. HIDE PREVIEW ON SCREEN */
+        #bill-canvas { display: none; }
+
+        /* 2. SHOW PREVIEW ONLY ON PRINT */
         @media print {
             .no-print { display: none !important; }
-            .bill-paper { display: block !important; border: none !important; margin: 0 !important; width: 100% !important; }
+            #bill-canvas { 
+                display: block !important; 
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100% !important;
+                padding: 40px !important;
+                background: white;
+            }
+            body { background: white; }
         }
-        @media (max-width: 1024px) {
-            .mobile-hidden { display: none !important; }
-            .bill-paper { display: none; } /* Hide print view on mobile screen to save space */
-        }
+
+        /* Navigation Styles */
+        .active-nav { color: #2563eb !important; border-top: 3px solid #2563eb; }
+        @media (max-width: 1024px) { .mobile-hidden { display: none !important; } }
     </style>
 </head>
-<body class="bg-slate-50 font-sans pb-24">
+<body class="bg-slate-100 font-sans pb-24">
 
 <div id="login-overlay" class="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
-        <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase tracking-tight">Horizon Login</h2>
-        <div class="space-y-4">
-            <input type="email" id="login-email" placeholder="Email" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border focus:ring-2 focus:ring-blue-500">
-            <input type="password" id="login-password" placeholder="Password" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border focus:ring-2 focus:ring-blue-500">
-            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg uppercase">Sign In</button>
-            <p id="login-error" class="text-red-500 text-xs hidden"></p>
-        </div>
+        <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase">Horizon Login</h2>
+        <input type="email" id="login-email" placeholder="Email" class="w-full p-4 mb-4 bg-slate-50 rounded-2xl border outline-none">
+        <input type="password" id="login-password" placeholder="Password" class="w-full p-4 mb-6 bg-slate-50 rounded-2xl border outline-none">
+        <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest">Authorize</button>
     </div>
 </div>
 
-<nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-[100] flex justify-around shadow-2xl pb-safe">
-    <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400">
-        <span class="text-[10px] font-black uppercase">New Trip</span>
-    </button>
-    <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400">
-        <span class="text-[10px] font-black uppercase">Bill Book</span>
-    </button>
-    <button onclick="window.print()" class="flex flex-col items-center py-4 flex-1 text-slate-400">
-        <span class="text-[10px] font-black uppercase">Print</span>
-    </button>
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-[100] flex justify-around shadow-2xl">
+    <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400 font-black text-[10px] uppercase">Form</button>
+    <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400 font-black text-[10px] uppercase">History</button>
+    <button onclick="window.print()" class="flex flex-col items-center py-4 flex-1 text-blue-600 font-black text-[10px] uppercase">Print Bill</button>
 </nav>
 
-<div class="container mx-auto p-4 lg:p-8">
-    <div class="flex justify-between items-center mb-6 no-print">
+<div class="container mx-auto p-4 lg:p-8 no-print">
+    <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-black text-slate-800 tracking-tighter">HORIZON <span class="text-blue-600">ERP</span></h1>
-        <button onclick="handleLogout()" class="text-[10px] font-bold text-red-500 uppercase">Sign Out</button>
+        <button onclick="handleLogout()" class="text-[10px] font-bold text-red-500 border border-red-100 px-2 py-1 rounded uppercase">Log Out</button>
     </div>
 
     <div class="grid lg:grid-cols-2 gap-8">
-        <div id="tab-form" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 no-print">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xs font-black uppercase text-slate-400 tracking-widest">Trip Details</h2>
-                <button onclick="resetForm()" class="text-[10px] font-bold text-blue-500 uppercase underline">New Entry</button>
-            </div>
-            
+        <div id="tab-form" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <h2 class="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-[0.2em]">New Booking / Entry</h2>
             <form id="billing-form" class="space-y-4">
-                <input type="text" id="guest-name" placeholder="Guest Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                <input type="tel" id="guest-phone" placeholder="Phone (91...)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
-                <input type="text" id="itinerary" placeholder="Route / Destination" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+                <input type="text" id="guest-name" oninput="updatePreview()" placeholder="Guest Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                <input type="tel" id="guest-phone" placeholder="WhatsApp Number" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+                <input type="text" id="itinerary" oninput="updatePreview()" placeholder="Route Details" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
                 
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="date" id="tour-date" class="p-4 bg-slate-50 rounded-2xl text-sm">
-                    <select id="vehicle-type" class="p-4 bg-slate-50 rounded-2xl text-sm font-bold">
-                        <option value="Sedan">Sedan</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Tempo">Tempo</option>
+                    <input type="date" id="tour-date" onchange="updatePreview()" class="p-4 bg-slate-50 rounded-2xl text-sm">
+                    <select id="vehicle-type" onchange="updatePreview()" class="p-4 bg-slate-50 rounded-2xl text-sm font-bold text-blue-600">
+                        <option value="Sedan">Sedan (4+1)</option>
+                        <option value="SUV">SUV (6+1)</option>
+                        <option value="Tempo">Tempo (12+1)</option>
                     </select>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2">
-                    <input type="number" id="start-km" placeholder="Start" class="p-4 bg-slate-50 rounded-2xl text-xs text-center">
-                    <input type="number" id="end-km" placeholder="End" class="p-4 bg-slate-50 rounded-2xl text-xs text-center">
-                    <input type="number" id="fixed-limit" placeholder="Limit" class="p-4 bg-slate-50 rounded-2xl text-xs text-center">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="base-rate" oninput="updatePreview()" placeholder="Base Price ₹" class="p-4 bg-blue-50 text-blue-700 font-black rounded-2xl outline-none">
+                    <input type="number" id="extras" oninput="updatePreview()" placeholder="Tolls/Permit ₹" class="p-4 bg-slate-50 rounded-2xl outline-none">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="base-rate" placeholder="Base ₹" class="p-4 bg-blue-50 text-blue-700 font-black rounded-2xl outline-none">
-                    <input type="number" id="extras" placeholder="Tolls ₹" class="p-4 bg-slate-50 rounded-2xl outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="tax-rate" placeholder="GST %" class="p-4 bg-slate-50 rounded-2xl">
-                    <input type="number" id="driver-incentive" placeholder="Batta ₹" class="p-4 bg-amber-50 text-amber-700 rounded-2xl">
+                <div class="p-4 bg-green-50 border border-green-100 rounded-2xl flex justify-between items-center">
+                    <span class="text-[10px] font-black text-green-700 uppercase tracking-widest">Total Amount</span>
+                    <span id="total-display" class="text-xl font-black text-green-700">₹0</span>
                 </div>
 
                 <div class="flex flex-col gap-2 pt-4">
-                    <button type="button" id="btn-save" onclick="saveToBillBook()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase shadow-xl">Sync Cloud</button>
-                    <button type="button" id="btn-update" onclick="updateExistingBill()" class="hidden w-full bg-indigo-600 text-white p-5 rounded-2xl font-black uppercase shadow-xl">Update Trip</button>
-                    <button type="button" onclick="sendWhatsApp()" class="w-full bg-green-500 text-white p-4 rounded-2xl font-bold">📲 WhatsApp Bill</button>
+                    <button type="button" id="btn-save" onclick="saveToBillBook()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase shadow-xl hover:bg-blue-700 transition">Sync to Cloud</button>
+                    <button type="button" id="btn-update" onclick="updateExistingBill()" class="hidden w-full bg-indigo-600 text-white p-5 rounded-2xl font-black uppercase shadow-xl">Update History</button>
+                    <button type="button" onclick="window.print()" class="w-full bg-slate-800 text-white p-4 rounded-2xl font-black uppercase text-xs">🖨️ Open Print Dialog</button>
                 </div>
             </form>
         </div>
 
-        <div id="tab-list" class="mobile-hidden lg:block bg-white p-6 rounded-3xl shadow-sm border border-slate-100 no-print flex flex-col h-[700px]">
-            <h2 class="text-xs font-black uppercase text-slate-400 mb-4 tracking-widest">Bill Book</h2>
-            
+        <div id="tab-list" class="mobile-hidden lg:block bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[650px]">
             <div class="relative mb-6">
-                <input type="text" id="search-input" onkeyup="filterBills()" placeholder="Search Name, Phone, or ID..." class="w-full p-4 pl-12 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 text-sm">
+                <input type="text" id="search-input" onkeyup="filterBills()" placeholder="Search bookings..." class="w-full p-4 pl-12 bg-slate-50 rounded-2xl border-none text-sm">
                 <span class="absolute left-4 top-4 opacity-30">🔍</span>
             </div>
-
-            <div class="overflow-y-auto flex-1">
-                <table class="w-full text-left">
-                    <tbody id="bill-book-entries" class="divide-y divide-slate-50">
-                        </tbody>
+            <div class="overflow-y-auto flex-1 scrollbar-hide">
+                <table class="w-full text-left text-sm">
+                    <tbody id="bill-book-entries" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
 
-<div id="bill-canvas" class="bill-paper mx-auto p-12 no-print lg:block mt-10">
+<div id="bill-canvas" class="p-10">
     <div class="flex justify-between items-start border-b-4 border-blue-600 pb-8 mb-8">
-        <div><h2 class="text-4xl font-black uppercase">Horizon Tours</h2><p class="text-blue-600 font-bold text-[10px] tracking-widest uppercase">Premium Logistics Kerala</p></div>
-        <div class="text-right"><p class="font-black text-xl" id="print-inv-no">#---</p><p id="print-inv-date" class="text-xs text-slate-400 italic font-bold uppercase">---</p></div>
+        <div>
+            <h2 class="text-4xl font-black uppercase leading-none">Horizon Tours</h2>
+            <p class="text-blue-600 font-bold text-[10px] tracking-widest uppercase mt-2">Premium Travel Solutions Kerala</p>
+        </div>
+        <div class="text-right">
+            <p class="font-black text-2xl" id="print-inv-no">#---</p>
+            <p id="print-inv-date" class="text-xs text-slate-400 font-bold uppercase">---</p>
+        </div>
     </div>
+
     <div class="grid grid-cols-2 gap-10 border-b pb-8 mb-8">
-        <div><h4 class="text-[9px] font-black text-slate-300 uppercase mb-2">Guest</h4><p id="print-name" class="text-xl font-bold">---</p><p id="print-phone" class="text-slate-500 text-sm">---</p></div>
-        <div class="text-right"><h4 class="text-[9px] font-black text-slate-300 uppercase mb-2">Itinerary</h4><p id="print-route" class="font-bold text-slate-800 italic">---</p></div>
+        <div>
+            <h4 class="text-[9px] font-black text-slate-300 uppercase mb-2">Guest Information</h4>
+            <p id="print-name" class="text-xl font-bold uppercase">---</p>
+            <p id="print-phone" class="text-slate-500 text-sm">---</p>
+        </div>
+        <div class="text-right">
+            <h4 class="text-[9px] font-black text-slate-300 uppercase mb-2">Route Details</h4>
+            <p id="print-route" class="font-bold text-slate-800 italic">---</p>
+            <p id="print-vehicle" class="text-xs text-slate-400 font-bold uppercase mt-1">---</p>
+        </div>
     </div>
-    <table class="w-full mb-20">
-        <tr class="border-b"><td class="py-6">Trip Package & KMs</td><td id="print-base" class="py-6 text-right font-bold text-lg">₹0</td></tr>
-        <tr class="border-b"><td class="py-6">Tolls / Parking / Other Extras</td><td id="print-extras" class="py-6 text-right font-bold text-lg">₹0</td></tr>
-        <tr class="bg-slate-900 text-white"><td class="p-8 font-black uppercase tracking-widest text-[11px]">Total (Inc. GST)</td><td id="print-total" class="p-8 text-right text-4xl font-black">₹0</td></tr>
+
+    <table class="w-full mb-16">
+        <thead class="text-left text-[10px] font-black text-slate-300 uppercase border-b">
+            <tr><th class="py-4">Service Item</th><th class="py-4 text-right">Amount (INR)</th></tr>
+        </thead>
+        <tbody class="text-lg font-medium text-slate-700 divide-y divide-slate-50">
+            <tr><td class="py-6">Standard Package / Day Charges</td><td id="print-base" class="py-6 text-right font-bold">₹0</td></tr>
+            <tr><td class="py-6">Additional Extras (Tolls, Parking, Permits)</td><td id="print-extras" class="py-6 text-right font-bold">₹0</td></tr>
+            <tr class="bg-slate-900 text-white">
+                <td class="p-8 font-black uppercase tracking-widest text-[11px]">Final Total Amount</td>
+                <td id="print-total" class="p-8 text-right text-4xl font-black">₹0</td>
+            </tr>
+        </tbody>
     </table>
+
+    <div class="mt-20 flex justify-between items-end">
+        <div class="text-[9px] text-slate-400 w-1/2 italic border-l-2 pl-4">
+            * This is a digital invoice from Horizon Tours ERP.<br>
+            * All prices include standard service taxes.
+        </div>
+        <div class="text-center border-t-2 border-slate-100 pt-2 w-1/3">
+            <p class="font-black text-[9px] uppercase tracking-widest">Manager Signature</p>
+        </div>
+    </div>
 </div>
 
 <script type="module">
@@ -135,6 +156,7 @@
   import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+  // Your Firebase Configuration (From previous steps)
   const firebaseConfig = {
     apiKey: "AIzaSyB3fkjzRYJmA9h3W6k0vp7JceUc4GW3sYQ",
     authDomain: "tour-billing.firebaseapp.com",
@@ -152,28 +174,10 @@
   window.billHistory = [];
   let activeFirestoreId = null;
 
-  // SEARCH FILTER LOGIC
-  window.filterBills = () => {
-      const term = document.getElementById('search-input').value.toLowerCase();
-      const rows = document.querySelectorAll('#bill-book-entries tr');
-      rows.forEach(row => {
-          const text = row.innerText.toLowerCase();
-          row.style.display = text.includes(term) ? '' : 'none';
-      });
-  };
-
-  // MOBILE TAB SWITCH
-  window.switchTab = (tab) => {
-      document.getElementById('tab-form').classList.toggle('mobile-hidden', tab !== 'form');
-      document.getElementById('tab-list').classList.toggle('mobile-hidden', tab !== 'list');
-      document.getElementById('nav-form').classList.toggle('active-nav', tab === 'form');
-      document.getElementById('nav-list').classList.toggle('active-nav', tab === 'list');
-  };
-
-  // AUTH
+  // LOGIN/LOGOUT
   window.handleLogin = async () => {
     try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); } 
-    catch(e) { alert("Access Denied"); }
+    catch(e) { alert("Wrong Login!"); }
   };
   window.handleLogout = () => signOut(auth);
   onAuthStateChanged(auth, u => {
@@ -192,11 +196,12 @@
         window.billHistory.push({ ...b, firebaseId: doc.id });
         tbody.innerHTML += `
           <tr onclick="loadBillToForm('${doc.id}')" class="border-b hover:bg-blue-50 cursor-pointer transition">
-            <td class="p-4"><div class="font-black text-slate-800 uppercase text-xs">${b.name}</div><div class="text-[9px] text-slate-400 italic">#${b.id} • ${b.route}</div></td>
+            <td class="p-4"><div class="font-black text-slate-800 text-xs uppercase">${b.name}</div><div class="text-[9px] text-slate-400">#${b.id} • ${b.route}</div></td>
             <td class="p-4 text-right"><div class="font-black text-blue-600">₹${b.total.toLocaleString('en-IN')}</div></td>
           </tr>`;
       });
       if(!activeFirestoreId) window.currentID = window.billHistory.length > 0 ? (Math.max(...window.billHistory.map(x => x.id)) + 1) : 1001;
+      updatePreview();
     });
   }
 
@@ -209,14 +214,50 @@
     document.getElementById('tour-date').value = b.date;
     document.getElementById('base-rate').value = b.base;
     document.getElementById('extras').value = b.extra;
-    document.getElementById('tax-rate').value = b.tax;
-    document.getElementById('driver-incentive').value = b.incentive;
-    
     window.currentID = b.id;
     document.getElementById('btn-save').classList.add('hidden');
     document.getElementById('btn-update').classList.remove('hidden');
     updatePreview();
     if(window.innerWidth < 1024) switchTab('form');
+  };
+
+  // LOGIC
+  window.updatePreview = () => {
+    const d = {
+      id: window.currentID || 1001,
+      name: document.getElementById('guest-name').value || "Guest",
+      phone: document.getElementById('guest-phone').value || "---",
+      route: document.getElementById('itinerary').value || "Manual Entry",
+      date: document.getElementById('tour-date').value || "--",
+      vehicle: document.getElementById('vehicle-type').value,
+      base: parseFloat(document.getElementById('base-rate').value) || 0,
+      extra: parseFloat(document.getElementById('extras').value) || 0
+    };
+    d.total = d.base + d.extra;
+
+    document.getElementById('total-display').innerText = "₹" + d.total.toLocaleString('en-IN');
+    document.getElementById('print-inv-no').innerText = "#" + d.id;
+    document.getElementById('print-inv-date').innerText = "DATE: " + d.date;
+    document.getElementById('print-name').innerText = d.name;
+    document.getElementById('print-phone').innerText = d.phone;
+    document.getElementById('print-route').innerText = d.route;
+    document.getElementById('print-vehicle').innerText = d.vehicle;
+    document.getElementById('print-base').innerText = "₹" + d.base.toLocaleString('en-IN');
+    document.getElementById('print-extras').innerText = "₹" + d.extra.toLocaleString('en-IN');
+    document.getElementById('print-total').innerText = "₹" + d.total.toLocaleString('en-IN');
+    return d;
+  };
+
+  window.saveToBillBook = async () => {
+    const data = updatePreview();
+    await addDoc(billsCol, { ...data, createdAt: new Date() });
+    alert("Synced!"); resetForm();
+  };
+
+  window.updateExistingBill = async () => {
+    const data = updatePreview();
+    await updateDoc(doc(db, "bills", activeFirestoreId), { ...data, updatedAt: new Date() });
+    alert("History Updated!"); resetForm();
   };
 
   window.resetForm = () => {
@@ -227,45 +268,18 @@
     loadCloudData();
   };
 
-  // CALCULATIONS
-  window.updatePreview = () => {
-    const d = {
-      id: window.currentID,
-      name: document.getElementById('guest-name').value || "Guest",
-      phone: document.getElementById('guest-phone').value || "N/A",
-      route: document.getElementById('itinerary').value || "Local Sightseeing",
-      date: document.getElementById('tour-date').value || "--",
-      base: parseFloat(document.getElementById('base-rate').value) || 0,
-      extra: parseFloat(document.getElementById('extras').value) || 0,
-      tax: parseFloat(document.getElementById('tax-rate').value) || 0,
-      incentive: parseFloat(document.getElementById('driver-incentive').value) || 0
-    };
-    d.total = (d.base + d.extra) * (1 + (d.tax/100));
-    d.margin = d.base - d.incentive;
-
-    document.getElementById('print-inv-no').innerText = "#" + d.id;
-    document.getElementById('print-name').innerText = d.name;
-    document.getElementById('print-route').innerText = d.route;
-    document.getElementById('print-total').innerText = "₹" + d.total.toLocaleString('en-IN');
-    document.getElementById('margin-display').innerText = "Profit: ₹" + d.margin.toLocaleString('en-IN');
-    return d;
+  window.switchTab = (tab) => {
+      document.getElementById('tab-form').classList.toggle('mobile-hidden', tab !== 'form');
+      document.getElementById('tab-list').classList.toggle('mobile-hidden', tab !== 'list');
+      document.getElementById('nav-form').classList.toggle('active-nav', tab === 'form');
+      document.getElementById('nav-list').classList.toggle('active-nav', tab === 'list');
   };
 
-  window.saveToBillBook = async () => {
-    const data = updatePreview();
-    await addDoc(billsCol, { ...data, createdAt: new Date() });
-    alert("Saved!"); resetForm();
-  };
-
-  window.updateExistingBill = async () => {
-    const data = updatePreview();
-    await updateDoc(doc(db, "bills", activeFirestoreId), { ...data, updatedAt: new Date() });
-    alert("Updated!"); resetForm();
-  };
-
-  window.sendWhatsApp = () => {
-    const d = updatePreview();
-    window.open(`https://wa.me/${d.phone.replace(/\D/g,'')}?text=Invoice%20#${d.id}:%20₹${d.total}`, '_blank');
+  window.filterBills = () => {
+      const term = document.getElementById('search-input').value.toLowerCase();
+      document.querySelectorAll('#bill-book-entries tr').forEach(row => {
+          row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+      });
   };
 </script>
 </body>
