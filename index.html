@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Horizon ERP | Delete & Management</title>
+    <title>Swiftra ERP | Premium Mobility</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         #bill-canvas { display: none; }
@@ -20,15 +20,17 @@
 </head>
 <body class="bg-slate-100 font-sans pb-24">
 
+<!-- AUTH PANEL -->
 <div id="login-overlay" class="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
-        <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase text-center tracking-tighter">Horizon Access</h2>
+        <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase text-center tracking-tighter">Swiftra Login</h2>
         <input type="email" id="login-email" placeholder="Email" class="w-full p-4 mb-4 bg-slate-50 rounded-2xl border outline-none">
         <input type="password" id="login-password" placeholder="Password" class="w-full p-4 mb-6 bg-slate-50 rounded-2xl border outline-none">
         <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest">Login</button>
     </div>
 </div>
 
+<!-- BOTTOM NAV -->
 <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-[100] flex justify-around shadow-2xl">
     <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400 font-black text-[10px] uppercase">Form</button>
     <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400 font-black text-[10px] uppercase">History</button>
@@ -37,11 +39,12 @@
 
 <div class="container mx-auto p-4 lg:p-8 no-print">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Horizon <span class="text-blue-600">ERP</span></h1>
+        <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">SWIFTRA <span class="text-blue-600">ERP</span></h1>
         <button onclick="handleLogout()" class="text-[10px] font-bold text-red-500 border border-red-100 px-3 py-1 rounded uppercase">Logout</button>
     </div>
 
     <div class="grid lg:grid-cols-2 gap-8">
+        <!-- FORM SECTION -->
         <div id="tab-form" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Billing Terminal</h2>
@@ -86,25 +89,54 @@
     </div>
 </div>
 
+<!-- PRINTABLE INVOICE -->
 <div id="bill-canvas">
     <div class="flex justify-between items-start border-b-4 border-blue-600 pb-8 mb-8">
         <div class="flex items-center gap-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" alt="Logo" class="w-16 h-16 object-contain">
-            <div><h2 class="text-4xl font-black uppercase leading-none">Horizon Tours</h2><p class="text-blue-600 font-bold text-[10px] uppercase mt-1">Premium Travel Solutions Kerala</p></div>
+            <!-- 1. SWIFTRA LOGO UPLOAD SLOT -->
+            <!-- Paste your real Logo image link inside src="..." below -->
+            <img src="https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&w=150&h=150" alt="Swiftra Logo" class="w-20 h-20 object-contain">
+            <div>
+                <h2 class="text-4xl font-black uppercase leading-none tracking-tighter">Swiftra</h2>
+                <p class="text-blue-600 font-bold text-[10px] uppercase tracking-widest mt-1">Premium Mobility Solutions</p>
+            </div>
         </div>
         <div class="text-right font-black"><p class="text-2xl" id="print-inv-no">#---</p><p id="print-inv-date" class="text-xs text-slate-400">---</p></div>
     </div>
+    
     <div class="grid grid-cols-2 gap-10 border-b pb-8 mb-8">
         <div><h4 class="text-[9px] font-black text-slate-300 uppercase mb-1">Guest Details</h4><p id="print-name" class="text-xl font-bold uppercase">---</p></div>
         <div class="text-right"><h4 class="text-[9px] font-black text-slate-300 uppercase mb-1">Route</h4><p id="print-route" class="font-bold text-slate-800 italic text-right">---</p></div>
     </div>
+    
     <table class="w-full mb-16 text-lg">
         <tr class="border-b"><td class="py-4 text-slate-500">Base Fare</td><td id="print-base" class="py-4 text-right font-bold">₹0</td></tr>
-        <tr class="border-b"><td class="py-4 text-slate-500">Extra KM (<span id="print-extra-km">0</span> KM)</td><td id="print-extra-cost" class="py-4 text-right font-bold">₹0</td></tr>
-        <tr class="border-b"><td class="py-4 text-slate-500">Tolls / Permits</td><td id="print-extras" class="py-4 text-right font-bold">₹0</td></tr>
+        <tr class="border-b"><td class="py-4 text-slate-500">Extra KM Charges (<span id="print-extra-km">0</span> KM)</td><td id="print-extra-cost" class="py-4 text-right font-bold">₹0</td></tr>
+        <tr class="border-b"><td class="py-4 text-slate-500">Tolls / Permits / Parking</td><td id="print-extras" class="py-4 text-right font-bold">₹0</td></tr>
         <tr class="bg-slate-900 text-white"><td class="p-8 font-black uppercase text-xs tracking-widest">Total Amount</td><td id="print-total" class="p-8 text-right text-4xl font-black">₹0</td></tr>
     </table>
-    <div class="text-center mt-20 border-t w-1/3 pt-2 text-[9px] font-black uppercase mx-auto">Authorized Signature</div>
+    
+    <!-- BRAND SEAL & SIGNATURE TRACKS -->
+    <div class="mt-20 flex justify-between items-center px-6">
+        <!-- 2. OFFICIAL SEALS UPLOAD SLOT -->
+        <div class="flex flex-col items-start">
+            <!-- Paste your real round Company Seal image link inside src="..." below -->
+            <!-- Ideal image: A clean transparent PNG of your rubber stamp seal -->
+            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=120&h=120" alt="Company Seal" class="w-28 h-28 object-contain opacity-85 mix-blend-multiply transform -rotate-6">
+        </div>
+        
+        <!-- 3. AUTHORIZED SIGNATURE UPLOAD SLOT -->
+        <div class="text-center flex flex-col items-center">
+            <div class="w-48 h-16 flex items-end justify-center mb-1">
+                <!-- Paste your real handwritten signature transparent image link inside src="..." below -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/John_Hancock_signature.png" alt="Authorized Signature" class="max-w-full max-h-full object-contain mix-blend-multiply">
+            </div>
+            <div class="border-t border-slate-300 pt-2 w-48">
+                <p class="font-black text-[9px] uppercase tracking-widest text-slate-700">Authorized Signature</p>
+                <p class="text-[8px] text-slate-400 uppercase mt-0.5">For Swiftra</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="module">
