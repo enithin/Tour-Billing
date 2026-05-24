@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Swiftra ERP | Final Master</title>
+    <title>Swiftra ERP | Fleet Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Stealth Print Logic - Hidden on screen, beautifully visible on print */
+        /* Stealth Print Logic */
         #bill-canvas { display: none; }
         @media print {
             .no-print { display: none !important; }
@@ -21,6 +21,7 @@
 </head>
 <body class="bg-slate-100 font-sans pb-24">
 
+<!-- AUTH PANEL -->
 <div id="login-overlay" class="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
         <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase text-center tracking-tighter">Swiftra Login</h2>
@@ -30,6 +31,7 @@
     </div>
 </div>
 
+<!-- BOTTOM NAV FOR MOBILE -->
 <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-[100] flex justify-around shadow-2xl">
     <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400 font-black text-[10px] uppercase">Form</button>
     <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400 font-black text-[10px] uppercase">History</button>
@@ -43,6 +45,7 @@
     </div>
 
     <div class="grid lg:grid-cols-2 gap-8">
+        <!-- FORM SECTION -->
         <div id="tab-form" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Billing Terminal</h2>
@@ -80,6 +83,7 @@
             </form>
         </div>
 
+        <!-- HISTORY SECTION -->
         <div id="tab-list" class="mobile-hidden lg:block bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[650px]">
             <input type="text" id="search-input" onkeyup="filterBills()" placeholder="🔍 Search History..." class="w-full p-4 bg-slate-50 rounded-2xl mb-4 text-sm border-none">
             <div class="overflow-y-auto flex-1"><table class="w-full text-left text-sm"><tbody id="bill-book-entries" class="divide-y divide-slate-100"></tbody></table></div>
@@ -87,9 +91,11 @@
     </div>
 </div>
 
+<!-- PRINTABLE INVOICE -->
 <div id="bill-canvas">
     <div class="flex justify-between items-start border-b-4 border-blue-600 pb-8 mb-8">
         <div class="flex items-center gap-4">
+            <!-- 1. LOCAL LOGO LINK -->
             <img src="logo.png" alt="Swiftra Logo" class="w-20 h-20 object-contain">
             <div>
                 <h2 class="text-4xl font-black uppercase leading-none tracking-tighter">Swiftra</h2>
@@ -111,14 +117,17 @@
         <tr class="bg-slate-900 text-white"><td class="p-8 font-black uppercase text-xs tracking-widest">Total Amount</td><td id="print-total" class="p-8 text-right text-4xl font-black">₹0</td></tr>
     </table>
     
+    <!-- BRAND SEAL & SIGNATURE TRACKS -->
     <div class="mt-20 flex justify-between items-center px-6">
+        <!-- 2. LOCAL COMPANY SEAL LINK -->
         <div class="flex flex-col items-start">
-            <img src="https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/seal.png" alt="Company Seal" class="w-28 h-28 object-contain opacity-85 mix-blend-multiply transform -rotate-6">
+            <img src="seal.png" alt="Company Seal" class="w-28 h-28 object-contain opacity-85 mix-blend-multiply transform -rotate-6">
         </div>
         
+        <!-- 3. LOCAL SIGNATURE LINK -->
         <div class="text-center flex flex-col items-center">
             <div class="w-48 h-16 flex items-end justify-center mb-1">
-                <img src="https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/signature.png" alt="Authorized Signature" class="max-w-full max-h-full object-contain mix-blend-multiply">
+                <img src="signature.png" alt="Authorized Signature" class="max-w-full max-h-full object-contain mix-blend-multiply">
             </div>
             <div class="border-t border-slate-300 pt-2 w-48">
                 <p class="font-black text-[9px] uppercase tracking-widest text-slate-700">Authorized Signature</p>
@@ -128,6 +137,7 @@
     </div>
 </div>
 
+<!-- SCRIPTS -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
