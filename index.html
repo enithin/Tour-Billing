@@ -1,1 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Swiftra ERP | Final Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Stealth Print Logic - Hidden on screen, beautifully visible on print */
+        #bill-canvas { display: none; }
+        @media print {
+            .no-print { display: none !important; }
+            #bill-canvas { 
+                display: block !important; 
+                position: absolute; top: 0; left: 0; width: 100%; padding: 40px; background: white;
+            }
+        }
+        .active-nav { color: #2563eb !important; border-top: 3px solid #2563eb; }
+        @media (max-width: 1024px) { .mobile-hidden { display: none !important; } }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans pb-24">
 
+<div id="login-overlay" class="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+        <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase text-center tracking-tighter">Swiftra Login</h2>
+        <input type="email" id="login-email" placeholder="Email" class="w-full p-4 mb-4 bg-slate-50 rounded-2xl border outline-none">
+        <input type="password" id="login-password" placeholder="Password" class="w-full p-4 mb-6 bg-slate-50 rounded-2xl border outline-none">
+        <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest">Login</button>
+    </div>
+</div>
+
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-[100] flex justify-around shadow-2xl">
+    <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400 font-black text-[10px] uppercase">Form</button>
+    <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400 font-black text-[10px] uppercase">History</button>
+    <button onclick="window.print()" class="flex flex-col items-center py-4 flex-1 text-blue-600 font-black text-[10px] uppercase">Print Bill</button>
+</nav>
+
+<div class="container mx-auto p-4 lg:p-8 no-print">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">SWIFTRA <span class="text-blue-600">ERP</span></h1>
+        <button onclick="handleLogout()" class="text-[10px] font-bold text-red-500 border border-red-100 px-3 py-1 rounded uppercase">Logout</button>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+        <div id="tab-form" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Billing Terminal</h2>
+                <button onclick="resetForm()" class="text-[10px] font-bold text-blue-500 underline uppercase">New Bill</button>
+            </div>
+            <form id="billing-form" class="space-y-4">
+                <input type="text" id="guest-name" oninput="updatePreview()" placeholder="Guest Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+                <input type="text" id="itinerary" oninput="updatePreview()" placeholder="Route / Destination" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Start KM</label><input type="number" id="start-km" oninput="updatePreview()" class="w-full p-4 bg-slate-50 rounded-2xl text-xs"></div>
+                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">End KM</label><input type="number" id="end-km" oninput="updatePreview()" class="w-full p-4 bg-slate-50 rounded-2xl text-xs"></div>
+                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Limit</label><input type="number" id="fixed-limit" oninput="updatePreview()" class="w-full p-4 bg-slate-50 rounded-2xl text-xs"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Base Fare</label><input type="number" id="base-rate" oninput="updatePreview()" class="w-full p-4 bg-blue-50 text-blue-700 font-black rounded-2xl outline-none"></div>
+                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Rate/Extra KM</label><input type="number" id="extra-km-rate" oninput="updatePreview()" class="w-full p-4 bg-slate-50 rounded-2xl outline-none"></div>
+                </div>
+
+                <input type="number" id="extras" oninput="updatePreview()" placeholder="Tolls / Parking / Permits ₹" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+
+                <div class="p-4 bg-blue-600 rounded-2xl flex justify-between items-center text-white shadow-lg">
+                    <div class="flex flex-col"><span class="text-[9px] font-black uppercase opacity-70">Total Amount</span><span id="total-display" class="text-2xl font-black">₹0</span></div>
+                    <button type="button" onclick="window.print()" class="bg-white text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Print</button>
+                </div>
+
+                <div class="flex flex-col gap-2 pt-2">
+                    <button type="button" id="btn-save" onclick="saveToBillBook()" class="w-full bg-slate-800 text-white p-5 rounded-2xl font-black uppercase shadow-xl">Save & Sync</button>
+                    <div id="edit-controls" class="hidden grid grid-cols-2 gap-2">
+                        <button type="button" onclick="updateExistingBill()" class="bg-indigo-600 text-white p-5 rounded-2xl font-black uppercase">Update</button>
+                        <button type="button" onclick="deleteBill()" class="bg-red-500 text-white p-5 rounded-2xl font-black uppercase">Delete</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="tab-list" class="mobile-hidden lg:block bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[650px]">
+            <input type="text" id="search-input" onkeyup="filterBills()" placeholder="🔍 Search History..." class="w-full p-4 bg-slate-50 rounded-2xl mb-4 text-sm border-none">
+            <div class="overflow-y-auto flex-1"><table class="w-full text-left text-sm"><tbody id="bill-book-entries" class="divide-y divide-slate-100"></tbody></table></div>
+        </div>
+    </div>
+</div>
+
+<div id="bill-canvas">
+    <div class="flex justify-between items-start border-b-4 border-blue-600 pb-8 mb-8">
+        <div class="flex items-center gap-4">
+            <img src="https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/logo.png" alt="Swiftra Logo" class="w-20 h-20 object-contain">
+            <div>
+                <h2 class="text-4xl font-black uppercase leading-none tracking-tighter">Swiftra</h2>
+                <p class="text-blue-600 font-bold text-[10px] uppercase tracking-widest mt-1">Premium Mobility Solutions</p>
+            </div>
+        </div>
+        <div class="text-right font-black"><p class="text-2xl" id="print-inv-no">#---</p><p id="print-inv-date" class="text-xs text-slate-400">---</p></div>
+    </div>
+    
+    <div class="grid grid-cols-2 gap-10 border-b pb-8 mb-8">
+        <div><h4 class="text-[9px] font-black text-slate-300 uppercase mb-1">Guest Details</h4><p id="print-name" class="text-xl font-bold uppercase">---</p></div>
+        <div class="text-right"><h4 class="text-[9px] font-black text-slate-300 uppercase mb-1">Route</h4><p id="print-route" class="font-bold text-slate-800 italic text-right">---</p></div>
+    </div>
+    
+    <table class="w-full mb-16 text-lg">
+        <tr class="border-b"><td class="py-4 text-slate-500">Base Fare</td><td id="print-base" class="py-4 text-right font-bold">₹0</td></tr>
+        <tr class="border-b"><td class="py-4 text-slate-500">Extra KM Charges (<span id="print-extra-km">0</span> KM)</td><td id="print-extra-cost" class="py-4 text-right font-bold">₹0</td></tr>
+        <tr class="border-b"><td class="py-4 text-slate-500">Tolls / Permits / Parking</td><td id="print-extras" class="py-4 text-right font-bold">₹0</td></tr>
+        <tr class="bg-slate-900 text-white"><td class="p-8 font-black uppercase text-xs tracking-widest">Total Amount</td><td id="print-total" class="p-8 text-right text-4xl font-black">₹0</td></tr>
+    </table>
+    
+    <div class="mt-20 flex justify-between items-center px-6">
+        <div class="flex flex-col items-start">
+            <img src="https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/seal.png" alt="Company Seal" class="w-28 h-28 object-contain opacity-85 mix-blend-multiply transform -rotate-6">
+        </div>
+        
+        <div class="text-center flex flex-col items-center">
+            <div class="w-48 h-16 flex items-end justify-center mb-1">
+                <img src="https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/signature.png" alt="Authorized Signature" class="max-w-full max-h-full object-contain mix-blend-multiply">
+            </div>
+            <div class="border-t border-slate-300 pt-2 w-48">
+                <p class="font-black text-[9px] uppercase tracking-widest text-slate-700">Authorized Signature</p>
+                <p class="text-[8px] text-slate-400 uppercase mt-0.5">For Swiftra</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB3fkjzRYJmA9h3W6k0vp7JceUc4GW3sYQ",
+    authDomain: "tour-billing.firebaseapp.com",
+    projectId: "tour-billing",
+    storageBucket: "tour-billing.firebasestorage.app",
+    messagingSenderId: "78420155938",
+    appId: "1:78420155938:web:3ff193fbb491ccb590347b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const billsCol = collection(db, "bills");
+  
+  window.billHistory = [];
+  let activeFirestoreId = null;
+
+  window.handleLogin = async () => {
+    try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); } 
+    catch(e) { alert("Access Denied"); }
+  };
+  window.handleLogout = () => signOut(auth);
+  onAuthStateChanged(auth, u => {
+    document.getElementById('login-overlay').style.display = u ? 'none' : 'flex';
+    if(u) loadCloudData();
+  });
+
+  window.updatePreview = () => {
+    const sKm = parseFloat(document.getElementById('start-km').value) || 0;
+    const eKm = parseFloat(document.getElementById('end-km').value) || 0;
+    const limit = parseFloat(document.getElementById('fixed-limit').value) || 0;
+    const rate = parseFloat(document.getElementById('extra-km-rate').value) || 0;
+    const base = parseFloat(document.getElementById('base-rate').value) || 0;
+    const misc = parseFloat(document.getElementById('extras').value) || 0;
+
+    const extraKm = Math.max(0, (eKm - sKm) - limit);
+    const extraCost = extraKm * rate;
+    const total = base + extraCost + misc;
+
+    document.getElementById('total-display').innerText = "₹" + total.toLocaleString('en-IN');
+    document.getElementById('print-inv-no').innerText = "#" + (window.currentID || "---");
+    document.getElementById('print-name').innerText = document.getElementById('guest-name').value || "Guest Name";
+    document.getElementById('print-route').innerText = document.getElementById('itinerary').value || "Manual Trip";
+    document.getElementById('print-base').innerText = "₹" + base.toLocaleString('en-IN');
+    document.getElementById('print-extra-km').innerText = extraKm;
+    document.getElementById('print-extra-cost').innerText = "₹" + extraCost.toLocaleString('en-IN');
+    document.getElementById('print-extras').innerText = "₹" + misc.toLocaleString('en-IN');
+    document.getElementById('print-total').innerText = "₹" + total.toLocaleString('en-IN');
+    document.getElementById('print-inv-date').innerText = new Date().toLocaleDateString('en-IN');
+
+    return { base, extraKm, extraCost, misc, total, sKm, eKm, limit, rate };
+  };
+
+  function loadCloudData() {
+    onSnapshot(query(billsCol, orderBy("createdAt", "desc")), snap => {
+      window.billHistory = [];
+      const tbody = document.getElementById('bill-book-entries');
+      tbody.innerHTML = "";
+      snap.forEach(doc => {
+        const b = doc.data();
+        window.billHistory.push({ ...b, firebaseId: doc.id });
+        tbody.innerHTML += `
+          <tr onclick="loadBillToForm('${doc.id}')" class="border-b hover:bg-blue-50 cursor-pointer transition">
+            <td class="p-4"><div class="font-black text-slate-800 text-xs uppercase">${b.name}</div><div class="text-[9px] text-slate-400">#${b.id} • ${b.route}</div></td>
+            <td class="p-4 text-right"><div class="font-black text-blue-600">₹${b.total.toLocaleString('en-IN')}</div></td>
+          </tr>`;
+      });
+      if(!activeFirestoreId) window.currentID = window.billHistory.length > 0 ? (Math.max(...window.billHistory.map(x => x.id)) + 1) : 1001;
+    });
+  }
+
+  window.loadBillToForm = (fid) => {
+    const b = window.billHistory.find(x => x.firebaseId === fid);
+    activeFirestoreId = fid;
+    document.getElementById('guest-name').value = b.name;
+    document.getElementById('itinerary').value = b.route;
+    document.getElementById('start-km').value = b.sKm;
+    document.getElementById('end-km').value = b.eKm;
+    document.getElementById('fixed-limit').value = b.limit;
+    document.getElementById('extra-km-rate').value = b.rate;
+    document.getElementById('base-rate').value = b.base;
+    document.getElementById('extras').value = b.misc;
+    window.currentID = b.id;
+    document.getElementById('btn-save').classList.add('hidden');
+    document.getElementById('edit-controls').classList.remove('hidden');
+    updatePreview();
+    if(window.innerWidth < 1024) switchTab('form');
+  };
+
+  window.saveToBillBook = async () => {
+    const calc = updatePreview();
+    if(!document.getElementById('guest-name').value) return alert("Enter Guest Name");
+    await addDoc(billsCol, { id: window.currentID, name: document.getElementById('guest-name').value, route: document.getElementById('itinerary').value, ...calc, createdAt: new Date() });
+    alert("Saved!"); resetForm();
+  };
+
+  window.updateExistingBill = async () => {
+    const calc = updatePreview();
+    await updateDoc(doc(db, "bills", activeFirestoreId), { ...calc, name: document.getElementById('guest-name').value, route: document.getElementById('itinerary').value });
+    alert("Updated!"); resetForm();
+  };
+
+  window.deleteBill = async () => {
+    if(confirm("Permanently delete this bill?")) {
+        await deleteDoc(doc(db, "bills", activeFirestoreId));
+        alert("Deleted!"); resetForm();
+    }
+  };
+
+  window.resetForm = () => {
+    activeFirestoreId = null;
+    document.getElementById('billing-form').reset();
+    document.getElementById('btn-save').classList.remove('hidden');
+    document.getElementById('edit-controls').classList.add('hidden');
+    loadCloudData();
+  };
+
+  window.switchTab = (t) => {
+      document.getElementById('tab-form').classList.toggle('mobile-hidden', t !== 'form');
+      document.getElementById('tab-list').classList.toggle('mobile-hidden', t !== 'list');
+      document.getElementById('nav-form').classList.toggle('active-nav', t === 'form');
+      document.getElementById('nav-list').classList.toggle('active-nav', t === 'list');
+  };
+
+  window.filterBills = () => {
+      const term = document.getElementById('search-input').value.toLowerCase();
+      document.querySelectorAll('#bill-book-entries tr').forEach(r => r.style.display = r.innerText.toLowerCase().includes(term) ? '' : 'none');
+  };
+</script>
+</body>
+</html>
