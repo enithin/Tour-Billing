@@ -6,10 +6,9 @@
     <title>Swiftra ERP | Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Stealth Print Logic & A4 Optimization */
+        /* Stealth Print Logic & Strict A4 Form Boundary Protection */
         #bill-canvas { display: none; }
         @media print {
-            /* Force exact A4 dimensions with zero spill over single page */
             @page {
                 size: A4 portrait;
                 margin: 0mm;
@@ -27,12 +26,11 @@
                 position: relative;
                 width: 210mm;
                 height: 297mm;
-                padding: 15mm 15mm;
+                padding: 15mm 20mm; /* Enhanced side margins to stop text clipping */
                 box-sizing: border-box;
                 background: white;
                 overflow: hidden;
             }
-            /* Ensure background images and watermarks are rendered by standard browsers */
             * {
                 -webkit-print-color-adjust: exact !important;
                 color-adjust: exact !important;
@@ -44,7 +42,6 @@
 </head>
 <body class="bg-slate-100 font-sans pb-24">
 
-<!-- AUTH PANEL -->
 <div id="login-overlay" class="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
         <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase text-center tracking-tighter">Swiftra Login</h2>
@@ -54,7 +51,6 @@
     </div>
 </div>
 
-<!-- BOTTOM NAV FOR MOBILE -->
 <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-[100] flex justify-around shadow-2xl">
     <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400 font-black text-[10px] uppercase">Form</button>
     <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400 font-black text-[10px] uppercase">History</button>
@@ -68,7 +64,6 @@
     </div>
 
     <div class="grid lg:grid-cols-2 gap-8">
-        <!-- FORM SECTION -->
         <div id="tab-form" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Billing Terminal</h2>
@@ -125,7 +120,6 @@
             </form>
         </div>
 
-        <!-- HISTORY SECTION -->
         <div id="tab-list" class="mobile-hidden lg:block bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[650px]">
             <input type="text" id="search-input" onkeyup="filterBills()" placeholder="🔍 Search Name, Phone or Bill #..." class="w-full p-4 bg-slate-50 rounded-2xl mb-4 text-sm border-none">
             <div class="overflow-y-auto flex-1"><table class="w-full text-left text-sm"><tbody id="bill-book-entries" class="divide-y divide-slate-100"></tbody></table></div>
@@ -133,24 +127,20 @@
     </div>
 </div>
 
-<!-- PRINTABLE INVOICE -->
 <div id="bill-canvas" class="relative">
     
-    <!-- EXECUTIVE FADED LOGO WATERMARK -->
     <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.04]">
         <img src="logo.png" alt="Watermark" class="w-[110mm] h-[110mm] object-contain">
     </div>
 
-    <!-- CORE CONTENT FRAME -->
     <div class="relative z-10 flex flex-col justify-between h-full">
         <div>
-            <!-- Header with Branding & Address -->
             <div class="flex justify-between items-start border-b-4 border-blue-600 pb-4 mb-5">
                 <div class="flex items-start gap-4">
                     <img src="logo.png" alt="Swiftra Logo" class="w-18 h-18 object-contain mt-1">
-                    <div>
-                        <h2 class="text-4xl font-black uppercase leading-none tracking-tighter text-slate-900">Swiftra</h2>
-                        <p class="text-blue-600 font-extrabold text-[11px] uppercase tracking-widest mt-1 mb-1.5">Premium Mobility Solutions</p>
+                    <div class="max-w-[120mm]">
+                        <h2 class="text-4xl font-black uppercase leading-none tracking-tighter text-slate-900 break-keep">Swiftra</h2>
+                        <p class="text-blue-600 font-extrabold text-[11px] uppercase tracking-widest mt-1 mb-1.5 break-keep">Premium Mobility Solutions</p>
                         <div class="text-[9px] text-slate-500 font-medium leading-relaxed uppercase tracking-tight">
                             Building No. XII/450-A, Main Road Junction,<br>
                             Near International Airport, Cochin, Kerala - 683111<br>
@@ -158,14 +148,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-right">
+                <div class="text-right min-w-[45mm]">
                     <span class="bg-blue-600 text-white text-[9px] font-black px-3 py-0.5 rounded tracking-widest uppercase inline-block mb-1">Invoice</span>
-                    <p class="text-3xl font-black text-slate-900" id="print-inv-no">#---</p>
+                    <p class="text-2xl font-black text-slate-900 tracking-tight" id="print-inv-no">#---</p>
                     <p class="text-[10px] font-bold text-slate-400 mt-0.5 uppercase">Date: <span id="print-inv-date" class="text-slate-700">---</span></p>
                 </div>
             </div>
             
-            <!-- Trip Information Blocks -->
             <div class="grid grid-cols-2 gap-8 bg-slate-50 p-4 rounded-2xl mb-5 border border-slate-100">
                 <div>
                     <h4 class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Guest / Corporate Account</h4>
@@ -178,7 +167,6 @@
                 </div>
             </div>
             
-            <!-- Itemized Calculations Matrix -->
             <table class="w-full text-sm border-collapse mb-5">
                 <thead>
                     <tr class="border-b-2 border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-wider">
@@ -207,9 +195,7 @@
             </table>
         </div>
         
-        <!-- FOOTER: TERMS & CONDITIONS + SIGNATURE OVERLAY -->
         <div class="border-t border-slate-200 pt-4 mb-2 grid grid-cols-12 gap-4 items-end">
-            <!-- 12-Point Legal Terms Segment (Takes up 7/12 layout columns) -->
             <div class="col-span-7 pr-4 select-none">
                 <h5 class="text-[9px] font-black uppercase tracking-wider text-slate-800 mb-1.5">Terms & Conditions</h5>
                 <ol class="text-[7.5px] text-slate-500 font-medium list-decimal pl-3 space-y-0.5 leading-normal uppercase tracking-tight">
@@ -228,19 +214,13 @@
                 </ol>
             </div>
 
-            <!-- Enhanced Signature Over Seal Layer (Takes up 5/12 layout columns) -->
             <div class="col-span-5 flex flex-col justify-end items-center relative h-32 pl-4">
-                <!-- Layer 1: Corporate Seal Underneath -->
                 <div class="absolute top-0 left-8 z-10">
                     <img src="seal.png" alt="Company Seal" class="w-24 h-24 object-contain opacity-75 mix-blend-multiply transform -rotate-12">
                 </div>
-                
-                <!-- Layer 2: Enlarged Authorized Signature Over Seal -->
                 <div class="absolute top-2 -left-2 right-0 z-20 flex justify-center pointer-events-none">
                     <img src="signature.png" alt="Authorized Signature" class="w-60 h-20 object-contain mix-blend-multiply transform rotate-2">
                 </div>
-                
-                <!-- Base Signature Line Tracking -->
                 <div class="border-t border-slate-300 pt-1 w-full text-center relative z-0">
                     <p class="font-black text-[9px] uppercase tracking-widest text-slate-700">Authorized Signatory</p>
                     <p class="text-[8px] text-slate-400 uppercase mt-0.5">Swiftra Mobility Group</p>
@@ -250,7 +230,6 @@
     </div>
 </div>
 
-<!-- SCRIPTS -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -311,7 +290,9 @@
     document.getElementById('print-base').innerText = "₹" + base.toLocaleString('en-IN');
     document.getElementById('print-extra-km').innerText = extraKm;
     document.getElementById('print-extra-cost').innerText = "₹" + extraCost.toLocaleString('en-IN');
-    document.getElementById('print-extras').innerText = "₹" + misc.toLocaleString('en-IN');
+    
+    // Explicit numerical verification to prevent fallback regional formatting anomalies
+    document.getElementById('print-extras').innerText = "₹" + (isNaN(misc) ? 0 : misc).toLocaleString('en-IN');
     document.getElementById('print-total').innerText = "₹" + total.toLocaleString('en-IN');
     
     if(selectedDate) {
