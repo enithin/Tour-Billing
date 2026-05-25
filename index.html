@@ -6,7 +6,7 @@
     <title>Swiftra ERP | Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Stealth Print Logic & Strict A4 Form Boundary Protection */
+        /* Stealth Print Logic & A4 Dimension Protection */
         #bill-canvas { display: none; }
         @media print {
             @page {
@@ -26,7 +26,7 @@
                 position: relative;
                 width: 210mm;
                 height: 297mm;
-                padding: 15mm 20mm; /* Enhanced side margins to stop text clipping */
+                padding: 15mm 20mm; /* Extra side breathing room to prevent letter truncation */
                 box-sizing: border-box;
                 background: white;
                 overflow: hidden;
@@ -129,18 +129,18 @@
 
 <div id="bill-canvas" class="relative">
     
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.04]">
-        <img src="logo.png" alt="Watermark" class="w-[110mm] h-[110mm] object-contain">
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03]">
+        <img src="logo.png" alt="Watermark" class="w-[100mm] h-[100mm] object-contain">
     </div>
 
     <div class="relative z-10 flex flex-col justify-between h-full">
         <div>
             <div class="flex justify-between items-start border-b-4 border-blue-600 pb-4 mb-5">
                 <div class="flex items-start gap-4">
-                    <img src="logo.png" alt="Swiftra Logo" class="w-18 h-18 object-contain mt-1">
-                    <div class="max-w-[120mm]">
-                        <h2 class="text-4xl font-black uppercase leading-none tracking-tighter text-slate-900 break-keep">Swiftra</h2>
-                        <p class="text-blue-600 font-extrabold text-[11px] uppercase tracking-widest mt-1 mb-1.5 break-keep">Premium Mobility Solutions</p>
+                    <img src="logo.png" alt="Swiftra Logo" class="w-14 h-14 object-contain mt-1">
+                    <div class="max-w-[125mm]">
+                        <h2 class="text-3xl font-black uppercase leading-none tracking-tighter text-slate-900 break-keep">Swiftra</h2>
+                        <p class="text-blue-600 font-extrabold text-[10px] uppercase tracking-widest mt-1 mb-1.5 break-keep">Premium Mobility Solutions</p>
                         <div class="text-[9px] text-slate-500 font-medium leading-relaxed uppercase tracking-tight">
                             Building No. XII/450-A, Main Road Junction,<br>
                             Near International Airport, Cochin, Kerala - 683111<br>
@@ -218,9 +218,11 @@
                 <div class="absolute top-0 left-8 z-10">
                     <img src="seal.png" alt="Company Seal" class="w-24 h-24 object-contain opacity-75 mix-blend-multiply transform -rotate-12">
                 </div>
+                
                 <div class="absolute top-2 -left-2 right-0 z-20 flex justify-center pointer-events-none">
                     <img src="signature.png" alt="Authorized Signature" class="w-60 h-20 object-contain mix-blend-multiply transform rotate-2">
                 </div>
+                
                 <div class="border-t border-slate-300 pt-1 w-full text-center relative z-0">
                     <p class="font-black text-[9px] uppercase tracking-widest text-slate-700">Authorized Signatory</p>
                     <p class="text-[8px] text-slate-400 uppercase mt-0.5">Swiftra Mobility Group</p>
@@ -291,7 +293,7 @@
     document.getElementById('print-extra-km').innerText = extraKm;
     document.getElementById('print-extra-cost').innerText = "₹" + extraCost.toLocaleString('en-IN');
     
-    // Explicit numerical verification to prevent fallback regional formatting anomalies
+    // Hard check to clean mathematical irregularities from rendering raw language scripts
     document.getElementById('print-extras').innerText = "₹" + (isNaN(misc) ? 0 : misc).toLocaleString('en-IN');
     document.getElementById('print-total').innerText = "₹" + total.toLocaleString('en-IN');
     
