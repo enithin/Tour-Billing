@@ -375,7 +375,6 @@
       }
   };
 
-  // ONE-CLICK WHATSAPP DISPATCH LOGIC ENGINE
   window.sendInvoiceViaWhatsApp = () => {
       const phoneInput = document.getElementById('guest-phone').value.trim();
       const nameInput = document.getElementById('guest-name').value.trim() || "Valued Guest";
@@ -395,13 +394,11 @@
           return;
       }
 
-      // Formatting clean country parameters (adds +91 prefix automatically if 10 digits are inputted)
       let cleanPhone = phoneInput.replace(/[^0-9]/g, "");
       if (cleanPhone.length === 10) {
           cleanPhone = "91" + cleanPhone;
       }
 
-      // WhatsApp API Greeting String Builder
       const messageText = 
 `Greetings from *Swiftra Premium Mobility Solutions*! ✨
 
@@ -423,6 +420,7 @@ Have a wonderful day ahead! 🌟`;
       window.open(url, '_blank');
   };
 
+  // ADVANCED EXACT-ALIGNMENT PDF DOWNLOAD ENGINE
   window.downloadInvoicePDF = () => {
       const element = document.getElementById('bill-canvas');
       const rawName = document.getElementById('guest-name').value.trim() || "Guest";
@@ -437,17 +435,39 @@ Have a wonderful day ahead! 🌟`;
       const cleanName = rawName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
       const generatedFileName = `${cleanName}_${formattedDate}.pdf`;
 
+      // CRITICAL FIX: Temporarily force matching configurations to emulate desktop browser screen rendering context
+      element.style.display = 'block';
+      element.style.width = '794px';  /* Strict desktop browser A4 width footprint */
+      element.style.height = '1123px'; /* Strict desktop browser A4 height footprint */
+      element.style.position = 'fixed';
+      element.style.top = '0';
+      element.style.left = '0';
+      element.style.zIndex = '-9999';
+
       const opt = {
           margin:       0,
           filename:     generatedFileName,
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true, logging: false },
+          html2canvas:  { 
+              scale: 2, 
+              useCORS: true, 
+              logging: false,
+              letterRendering: true,
+              scrollX: 0,
+              scrollY: 0
+          },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      element.style.display = 'block';
       html2pdf().set(opt).from(element).save().then(() => {
+          // Re-hide view track and reset original properties immediately after saving the output link
           element.style.display = 'none';
+          element.style.width = '';
+          element.style.height = '';
+          element.style.position = 'relative';
+          element.style.top = '';
+          element.style.left = '';
+          element.style.zIndex = '';
       });
   };
 
