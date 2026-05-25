@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Stealth Print Logic & A4 Dimension Protection */
+        /* Stealth Print Logic & Hardware A4 Dimension Protection */
         #bill-canvas { display: none; }
         @media print {
             @page {
@@ -151,7 +151,7 @@
                     <div class="flex flex-col"><span class="text-[9px] font-black uppercase opacity-70">Total Amount</span><span id="total-display" class="text-2xl font-black">₹0</span></div>
                     <div class="flex flex-wrap gap-1.5 justify-end items-center">
                         <button type="button" onclick="window.print()" class="bg-white/20 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-white/30">Print</button>
-                        <button type="button" onclick="downloadInvoicePDF()" class="bg-white/20 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-white/30">Download</button>
+                        <button type="button" onclick="downloadInvoicePDF()" class="bg-white text-blue-600 px-3 py-2 rounded-xl text-[10px] font-black uppercase shadow-sm hover:bg-blue-50">Download</button>
                         <button type="button" onclick="sendInvoiceViaWhatsApp()" class="bg-emerald-500 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase shadow-md flex items-center gap-1 hover:bg-emerald-600">
                            💬 WhatsApp Bill
                         </button>
@@ -420,7 +420,7 @@ Have a wonderful day ahead! 🌟`;
       window.open(url, '_blank');
   };
 
-  // ADVANCED EXACT-ALIGNMENT PDF DOWNLOAD ENGINE
+  // RE-CALIBRATED EXACT ALIGNMENT SINGLE PAGE PDF DOWNLOAD ENGINE
   window.downloadInvoicePDF = () => {
       const element = document.getElementById('bill-canvas');
       const rawName = document.getElementById('guest-name').value.trim() || "Guest";
@@ -435,14 +435,17 @@ Have a wonderful day ahead! 🌟`;
       const cleanName = rawName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
       const generatedFileName = `${cleanName}_${formattedDate}.pdf`;
 
-      // CRITICAL FIX: Temporarily force matching configurations to emulate desktop browser screen rendering context
+      // FIXED: Temporarily show the block using absolute style sizing configurations
+      // This completely bypasses physical height conflicts inside html2pdf calculation loops
       element.style.display = 'block';
-      element.style.width = '794px';  /* Strict desktop browser A4 width footprint */
-      element.style.height = '1123px'; /* Strict desktop browser A4 height footprint */
+      element.style.width = '794px'; 
+      element.style.minHeight = '1123px';
+      element.style.maxHeight = '1123px';
       element.style.position = 'fixed';
       element.style.top = '0';
       element.style.left = '0';
       element.style.zIndex = '-9999';
+      element.style.background = '#ffffff';
 
       const opt = {
           margin:       0,
@@ -460,10 +463,12 @@ Have a wonderful day ahead! 🌟`;
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
-          // Re-hide view track and reset original properties immediately after saving the output link
+          // Instantly tear down temporary layout wrappers once the stream download is called
           element.style.display = 'none';
           element.style.width = '';
           element.style.height = '';
+          element.style.minHeight = '';
+          element.style.maxHeight = '';
           element.style.position = 'relative';
           element.style.top = '';
           element.style.left = '';
