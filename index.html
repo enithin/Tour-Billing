@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Swiftra ERP | Fleet Terminal</title>
+    <title>Swiftra ERP | Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Stealth Print Logic */
@@ -52,7 +52,17 @@
                 <button onclick="resetForm()" class="text-[10px] font-bold text-blue-500 underline uppercase">New Bill</button>
             </div>
             <form id="billing-form" class="space-y-4">
-                <input type="text" id="guest-name" oninput="updatePreview()" placeholder="Guest Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Trip Date</label>
+                        <input type="date" id="bill-date" onchange="updatePreview()" class="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm font-bold">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Guest Name</label>
+                        <input type="text" id="guest-name" oninput="updatePreview()" placeholder="Guest Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+                    </div>
+                </div>
+                
                 <input type="text" id="itinerary" oninput="updatePreview()" placeholder="Route / Destination" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
                 
                 <div class="grid grid-cols-3 gap-2">
@@ -93,46 +103,84 @@
 
 <!-- PRINTABLE INVOICE -->
 <div id="bill-canvas">
-    <div class="flex justify-between items-start border-b-4 border-blue-600 pb-8 mb-8">
-        <div class="flex items-center gap-4">
-            <!-- 1. LOCAL LOGO LINK -->
-            <img src="logo.png" alt="Swiftra Logo" class="w-20 h-20 object-contain">
+    <div class="flex justify-between items-start border-b-4 border-blue-600 pb-6 mb-8">
+        <div class="flex items-start gap-4">
+            <img src="logo.png" alt="Swiftra Logo" class="w-20 h-20 object-contain mt-1">
             <div>
-                <h2 class="text-4xl font-black uppercase leading-none tracking-tighter">Swiftra</h2>
-                <p class="text-blue-600 font-bold text-[10px] uppercase tracking-widest mt-1">Premium Mobility Solutions</p>
+                <h2 class="text-4xl font-black uppercase leading-none tracking-tighter text-slate-900">Swiftra</h2>
+                <p class="text-blue-600 font-extrabold text-[11px] uppercase tracking-widest mt-1 mb-2">Premium Mobility Solutions</p>
+                <div class="text-[10px] text-slate-500 font-medium leading-relaxed uppercase tracking-tight">
+                    Building No. XII/450-A, Main Road Junction,<br>
+                    Near International Airport, Cochin, Kerala - 683111<br>
+                    <span class="font-bold text-slate-700">Email:</span> ops@swiftra.com &nbsp;|&nbsp; <span class="font-bold text-slate-700">Mob:</span> +91 98450 12345
+                </div>
             </div>
         </div>
-        <div class="text-right font-black"><p class="text-2xl" id="print-inv-no">#---</p><p id="print-inv-date" class="text-xs text-slate-400">---</p></div>
+        <div class="text-right">
+            <span class="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded tracking-widest uppercase inline-block mb-2">Invoice</span>
+            <p class="text-3xl font-black text-slate-900" id="print-inv-no">#---</p>
+            <p class="text-[11px] font-bold text-slate-400 mt-1 uppercase">Date: <span id="print-inv-date" class="text-slate-700">---</span></p>
+        </div>
     </div>
     
-    <div class="grid grid-cols-2 gap-10 border-b pb-8 mb-8">
-        <div><h4 class="text-[9px] font-black text-slate-300 uppercase mb-1">Guest Details</h4><p id="print-name" class="text-xl font-bold uppercase">---</p></div>
-        <div class="text-right"><h4 class="text-[9px] font-black text-slate-300 uppercase mb-1">Route</h4><p id="print-route" class="font-bold text-slate-800 italic text-right">---</p></div>
+    <div class="grid grid-cols-2 gap-10 bg-slate-50 p-5 rounded-2xl mb-8 border border-slate-100">
+        <div>
+            <h4 class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Guest / Corporate Account</h4>
+            <p id="print-name" class="text-xl font-black text-slate-800 uppercase tracking-tight">---</p>
+        </div>
+        <div class="text-right">
+            <h4 class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Operational Route</h4>
+            <p id="print-route" class="text-lg font-bold text-blue-700 italic tracking-tight">---</p>
+        </div>
     </div>
     
-    <table class="w-full mb-16 text-lg">
-        <tr class="border-b"><td class="py-4 text-slate-500">Base Fare</td><td id="print-base" class="py-4 text-right font-bold">₹0</td></tr>
-        <tr class="border-b"><td class="py-4 text-slate-500">Extra KM Charges (<span id="print-extra-km">0</span> KM)</td><td id="print-extra-cost" class="py-4 text-right font-bold">₹0</td></tr>
-        <tr class="border-b"><td class="py-4 text-slate-500">Tolls / Permits / Parking</td><td id="print-extras" class="py-4 text-right font-bold">₹0</td></tr>
-        <tr class="bg-slate-900 text-white"><td class="p-8 font-black uppercase text-xs tracking-widest">Total Amount</td><td id="print-total" class="p-8 text-right text-4xl font-black">₹0</td></tr>
+    <table class="w-full mb-12 text-md border-collapse">
+        <thead>
+            <tr class="border-b-2 border-slate-200 text-slate-400 text-[10px] font-black uppercase tracking-wider">
+                <th class="py-3 text-left">Description of Service Charges</th>
+                <th class="py-3 text-right">Amount (INR)</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+            <tr>
+                <td class="py-4 font-medium">Base Trip Package Fare</td>
+                <td id="print-base" class="py-4 text-right font-bold text-slate-900">₹0</td>
+            </tr>
+            <tr>
+                <td class="py-4 font-medium">Extra Kilometer Charges (<span id="print-extra-km" class="text-blue-600 font-bold">0</span> KM Over-limit)</td>
+                <td id="print-extra-cost" class="py-4 text-right font-bold text-slate-900">₹0</td>
+            </tr>
+            <tr>
+                <td class="py-4 font-medium">Tolls / State Permits / Parking Expenditures</td>
+                <td id="print-extras" class="py-4 text-right font-bold text-slate-900">₹0</td>
+            </tr>
+            <tr class="bg-blue-50 border-t-2 border-blue-600">
+                <td class="p-5 font-black uppercase text-xs text-blue-900 tracking-wider">Grand Total Payable</td>
+                <td id="print-total" class="p-5 text-right text-3xl font-black text-blue-700">₹0</td>
+            </tr>
+        </tbody>
     </table>
     
-    <!-- BRAND SEAL & SIGNATURE TRACKS -->
-    <div class="mt-20 flex justify-between items-center px-6">
-        <!-- 2. LOCAL COMPANY SEAL LINK -->
-        <div class="flex flex-col items-start">
-            <img src="seal.png" alt="Company Seal" class="w-28 h-28 object-contain opacity-85 mix-blend-multiply transform -rotate-6">
-        </div>
-        
-        <!-- 3. LOCAL SIGNATURE LINK -->
-        <div class="text-center flex flex-col items-center">
-            <div class="w-48 h-16 flex items-end justify-center mb-1">
-                <img src="signature.png" alt="Authorized Signature" class="max-w-full max-h-full object-contain mix-blend-multiply">
+    <!-- HIGH-FIDELITY SIGNATURE-OVER-SEAL TRACK -->
+    <div class="mt-28 flex justify-end pr-12">
+        <div class="relative w-64 h-32 flex flex-col justify-end items-center">
+            
+            <!-- Layer 1: The Corporate Seal (Placed underneath with z-10) -->
+            <div class="absolute top-0 left-4 z-10">
+                <img src="seal.png" alt="Company Seal" class="w-28 h-28 object-contain opacity-80 mix-blend-multiply transform -rotate-12">
             </div>
-            <div class="border-t border-slate-300 pt-2 w-48">
-                <p class="font-black text-[9px] uppercase tracking-widest text-slate-700">Authorized Signature</p>
-                <p class="text-[8px] text-slate-400 uppercase mt-0.5">For Swiftra</p>
+            
+            <!-- Layer 2: The Handwritten Signature (Layered over the seal with z-20) -->
+            <div class="absolute top-4 left-0 right-0 z-20 flex justify-center pointer-events-none">
+                <img src="signature.png" alt="Authorized Signature" class="w-52 h-16 object-contain mix-blend-multiply transform rotate-3">
             </div>
+            
+            <!-- Base Line Labeling Track -->
+            <div class="border-t border-slate-300 pt-2 w-full text-center relative z-0">
+                <p class="font-black text-[9px] uppercase tracking-widest text-slate-700">Authorized Signatory</p>
+                <p class="text-[8px] text-slate-400 uppercase mt-0.5">Swiftra Mobility Group</p>
+            </div>
+            
         </div>
     </div>
 </div>
@@ -167,8 +215,15 @@
   window.handleLogout = () => signOut(auth);
   onAuthStateChanged(auth, u => {
     document.getElementById('login-overlay').style.display = u ? 'none' : 'flex';
-    if(u) loadCloudData();
+    if(u) { setTodayDate(); loadCloudData(); }
   });
+
+  function setTodayDate() {
+    if (!document.getElementById('bill-date').value) {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bill-date').value = today;
+    }
+  }
 
   window.updatePreview = () => {
     const sKm = parseFloat(document.getElementById('start-km').value) || 0;
@@ -177,6 +232,7 @@
     const rate = parseFloat(document.getElementById('extra-km-rate').value) || 0;
     const base = parseFloat(document.getElementById('base-rate').value) || 0;
     const misc = parseFloat(document.getElementById('extras').value) || 0;
+    const selectedDate = document.getElementById('bill-date').value;
 
     const extraKm = Math.max(0, (eKm - sKm) - limit);
     const extraCost = extraKm * rate;
@@ -191,9 +247,13 @@
     document.getElementById('print-extra-cost').innerText = "₹" + extraCost.toLocaleString('en-IN');
     document.getElementById('print-extras').innerText = "₹" + misc.toLocaleString('en-IN');
     document.getElementById('print-total').innerText = "₹" + total.toLocaleString('en-IN');
-    document.getElementById('print-inv-date').innerText = new Date().toLocaleDateString('en-IN');
+    
+    if(selectedDate) {
+        const dObj = new Date(selectedDate);
+        document.getElementById('print-inv-date').innerText = dObj.toLocaleDateString('en-IN');
+    }
 
-    return { base, extraKm, extraCost, misc, total, sKm, eKm, limit, rate };
+    return { base, extraKm, extraCost, misc, total, sKm, eKm, limit, rate, date: selectedDate };
   };
 
   function loadCloudData() {
@@ -204,19 +264,26 @@
       snap.forEach(doc => {
         const b = doc.data();
         window.billHistory.push({ ...b, firebaseId: doc.id });
+        
+        let displayDate = b.date ? new Date(b.date).toLocaleDateString('en-IN') : '---';
         tbody.innerHTML += `
           <tr onclick="loadBillToForm('${doc.id}')" class="border-b hover:bg-blue-50 cursor-pointer transition">
-            <td class="p-4"><div class="font-black text-slate-800 text-xs uppercase">${b.name}</div><div class="text-[9px] text-slate-400">#${b.id} • ${b.route}</div></td>
+            <td class="p-4">
+                <div class="font-black text-slate-800 text-xs uppercase">${b.name}</div>
+                <div class="text-[9px] text-slate-400">#${b.id} • ${b.route} • ${displayDate}</div>
+            </td>
             <td class="p-4 text-right"><div class="font-black text-blue-600">₹${b.total.toLocaleString('en-IN')}</div></td>
           </tr>`;
       });
       if(!activeFirestoreId) window.currentID = window.billHistory.length > 0 ? (Math.max(...window.billHistory.map(x => x.id)) + 1) : 1001;
+      updatePreview();
     });
   }
 
   window.loadBillToForm = (fid) => {
     const b = window.billHistory.find(x => x.firebaseId === fid);
     activeFirestoreId = fid;
+    document.getElementById('bill-date').value = b.date || "";
     document.getElementById('guest-name').value = b.name;
     document.getElementById('itinerary').value = b.route;
     document.getElementById('start-km').value = b.sKm;
@@ -255,6 +322,7 @@
   window.resetForm = () => {
     activeFirestoreId = null;
     document.getElementById('billing-form').reset();
+    setTodayDate();
     document.getElementById('btn-save').classList.remove('hidden');
     document.getElementById('edit-controls').classList.add('hidden');
     loadCloudData();
