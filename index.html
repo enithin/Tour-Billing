@@ -420,9 +420,9 @@ Have a wonderful day ahead! 🌟`;
       window.open(url, '_blank');
   };
 
-  // RE-CALIBRATED EXACT ALIGNMENT SINGLE PAGE PDF DOWNLOAD ENGINE
+  // HYPER-CALIBRATED NO-BLANK-PAGE PDF CONVERSION ENGINE
   window.downloadInvoicePDF = () => {
-      const element = document.getElementById('bill-canvas');
+      const sourceElement = document.getElementById('bill-canvas');
       const rawName = document.getElementById('guest-name').value.trim() || "Guest";
       const rawDate = document.getElementById('bill-date').value;
       
@@ -435,17 +435,27 @@ Have a wonderful day ahead! 🌟`;
       const cleanName = rawName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
       const generatedFileName = `${cleanName}_${formattedDate}.pdf`;
 
-      // FIXED: Temporarily show the block using absolute style sizing configurations
-      // This completely bypasses physical height conflicts inside html2pdf calculation loops
-      element.style.display = 'block';
-      element.style.width = '794px'; 
-      element.style.minHeight = '1123px';
-      element.style.maxHeight = '1123px';
-      element.style.position = 'fixed';
-      element.style.top = '0';
-      element.style.left = '0';
-      element.style.zIndex = '-9999';
-      element.style.background = '#ffffff';
+      // SOLUTION: Clone element safely into an isolated sandbox to decouple from hidden page properties
+      const clonedElement = sourceElement.cloneNode(true);
+      clonedElement.style.display = 'block';
+      clonedElement.style.width = '175mm'; // Perfectly maps printable canvas boundary rules
+      clonedElement.style.height = 'auto';
+      clonedElement.style.padding = '0';
+      clonedElement.style.margin = '0';
+      clonedElement.style.background = '#ffffff';
+
+      // Inject temporary wrapper to force strict offscreen isolation container layout
+      const workerWrapper = document.createElement('div');
+      workerWrapper.style.position = 'fixed';
+      workerWrapper.style.top = '-99999px';
+      workerWrapper.style.left = '-99999px';
+      workerWrapper.style.width = '210mm';
+      workerWrapper.style.height = '297mm';
+      workerWrapper.style.padding = '15mm 20mm';
+      workerWrapper.style.boxSizing = 'border-box';
+      workerWrapper.style.background = '#ffffff';
+      workerWrapper.appendChild(clonedElement);
+      document.body.appendChild(workerWrapper);
 
       const opt = {
           margin:       0,
@@ -456,23 +466,15 @@ Have a wonderful day ahead! 🌟`;
               useCORS: true, 
               logging: false,
               letterRendering: true,
-              scrollX: 0,
-              scrollY: 0
+              backgroundColor: '#ffffff'
           },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(element).save().then(() => {
-          // Instantly tear down temporary layout wrappers once the stream download is called
-          element.style.display = 'none';
-          element.style.width = '';
-          element.style.height = '';
-          element.style.minHeight = '';
-          element.style.maxHeight = '';
-          element.style.position = 'relative';
-          element.style.top = '';
-          element.style.left = '';
-          element.style.zIndex = '';
+      // Run generator directly against our isolated offscreen sandbox element node
+      html2pdf().set(opt).from(workerWrapper).save().then(() => {
+          // Garbage collect and drop sandbox trace cleanly once down-stream finishes saving the asset
+          document.body.removeChild(workerWrapper);
       });
   };
 
