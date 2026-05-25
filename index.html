@@ -26,7 +26,7 @@
                 position: relative;
                 width: 210mm;
                 height: 297mm;
-                padding: 15mm 20mm; /* Extra side breathing room to prevent letter truncation */
+                padding: 12mm 20mm 15mm 20mm; /* Re-calibrated for single page layout */
                 box-sizing: border-box;
                 background: white;
                 overflow: hidden;
@@ -51,10 +51,22 @@
     </div>
 </div>
 
+<div id="new-bill-modal" class="fixed inset-0 z-[250] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">📄</div>
+        <h3 class="text-lg font-black text-slate-800 uppercase tracking-tight">Initialize New Bill?</h3>
+        <p class="text-xs text-slate-500 mt-1 mb-6">This will clear current workspace inputs and generate a fresh invoice track.</p>
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="closeNewBillModal()" class="bg-slate-100 text-slate-600 font-bold py-3 rounded-xl uppercase text-xs">Cancel</button>
+            <button onclick="confirmResetForm()" class="bg-blue-600 text-white font-black py-3 rounded-xl uppercase text-xs tracking-wider">Confirm</button>
+        </div>
+    </div>
+</div>
+
 <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-[100] flex justify-around shadow-2xl">
     <button onclick="switchTab('form')" id="nav-form" class="flex flex-col items-center py-4 flex-1 active-nav text-slate-400 font-black text-[10px] uppercase">Form</button>
     <button onclick="switchTab('list')" id="nav-list" class="flex flex-col items-center py-4 flex-1 text-slate-400 font-black text-[10px] uppercase">History</button>
-    <button onclick="window.print()" class="flex flex-col items-center py-4 flex-1 text-blue-600 font-black text-[10px] uppercase">Print Bill</button>
+    <button onclick="window.print()" class="flex flex-col items-center py-4 flex-1 text-blue-600 font-black text-[10px] uppercase">Print</button>
 </nav>
 
 <div class="container mx-auto p-4 lg:p-8 no-print">
@@ -67,7 +79,7 @@
         <div id="tab-form" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Billing Terminal</h2>
-                <button onclick="resetForm()" class="text-[10px] font-bold text-blue-500 underline uppercase">New Bill</button>
+                <button onclick="triggerNewBillModal()" class="text-[10px] font-bold text-blue-500 underline uppercase">New Bill</button>
             </div>
             <form id="billing-form" class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
@@ -77,7 +89,7 @@
                     </div>
                     <div class="space-y-1">
                         <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Guest Name</label>
-                        <input type="text" id="guest-name" oninput="updatePreview()" placeholder="Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+                        <input type="text" id="guest-name" oninput="updatePreview()" placeholder="Customer Name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
                     </div>
                 </div>
 
@@ -104,6 +116,23 @@
                 </div>
 
                 <input type="number" id="extras" oninput="updatePreview()" placeholder="Tolls / Parking / Permits ₹" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="p-3 bg-slate-50 border rounded-xl flex justify-between items-center">
+                        <span class="text-[10px] font-black text-slate-500 uppercase tracking-tight">Terms & Conditions</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="terms-toggle" checked onchange="toggleTermsDisplay()" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="p-3 bg-slate-50 border rounded-xl flex justify-between items-center">
+                        <span class="text-[10px] font-black text-slate-500 uppercase tracking-tight">Show QR Code</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="qr-toggle" checked onchange="toggleQRDisplay()" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
 
                 <div class="p-4 bg-blue-600 rounded-2xl flex justify-between items-center text-white shadow-lg">
                     <div class="flex flex-col"><span class="text-[9px] font-black uppercase opacity-70">Total Amount</span><span id="total-display" class="text-2xl font-black">₹0</span></div>
@@ -135,16 +164,17 @@
 
     <div class="relative z-10 flex flex-col justify-between h-full">
         <div>
-            <div class="flex justify-between items-start border-b-4 border-blue-600 pb-4 mb-5">
+            <div class="flex justify-between items-start border-b-4 border-blue-600 pb-4 mb-4">
                 <div class="flex items-start gap-4">
                     <img src="logo.png" alt="Swiftra Logo" class="w-14 h-14 object-contain mt-1">
                     <div class="max-w-[125mm]">
                         <h2 class="text-3xl font-black uppercase leading-none tracking-tighter text-slate-900 break-keep">Swiftra</h2>
                         <p class="text-blue-600 font-extrabold text-[10px] uppercase tracking-widest mt-1 mb-1.5 break-keep">Premium Mobility Solutions</p>
                         <div class="text-[9px] text-slate-500 font-medium leading-relaxed uppercase tracking-tight">
-                            Building No. XII/450-A, Main Road Junction,<br>
-                            Near International Airport, Cochin, Kerala - 683111<br>
-                            <span class="font-bold text-slate-700">Email:</span> ops@swiftra.com &nbsp;|&nbsp; <span class="font-bold text-slate-700">Mob:</span> +91 98450 12345
+                            PRWN-LB/23 Building, Second Floor,<br>
+                            Pallath Road, Thammanam,<br>
+                            Kochi, Kerala - 682032<br>
+                            <span class="font-bold text-slate-700">Email:</span> swiftraindia@gmail.com &nbsp;|&nbsp; <span class="font-bold text-slate-700">Mob:</span> +91 98450 12345
                         </div>
                     </div>
                 </div>
@@ -155,7 +185,7 @@
                 </div>
             </div>
             
-            <div class="grid grid-cols-2 gap-8 bg-slate-50 p-4 rounded-2xl mb-5 border border-slate-100">
+            <div class="grid grid-cols-2 gap-8 bg-slate-50 p-4 rounded-2xl mb-4 border border-slate-100">
                 <div>
                     <h4 class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Guest / Corporate Account</h4>
                     <p id="print-name" class="text-xl font-black text-slate-800 uppercase tracking-tight mb-0.5">---</p>
@@ -167,7 +197,7 @@
                 </div>
             </div>
             
-            <table class="w-full text-sm border-collapse mb-5">
+            <table class="w-full text-sm border-collapse mb-4">
                 <thead>
                     <tr class="border-b-2 border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-wider">
                         <th class="py-2 text-left">Description of Service Charges</th>
@@ -195,34 +225,37 @@
             </table>
         </div>
         
-        <div class="border-t border-slate-200 pt-4 mb-2 grid grid-cols-12 gap-4 items-end">
-            <div class="col-span-7 pr-4 select-none">
-                <h5 class="text-[9px] font-black uppercase tracking-wider text-slate-800 mb-1.5">Terms & Conditions</h5>
-                <ol class="text-[7.5px] text-slate-500 font-medium list-decimal pl-3 space-y-0.5 leading-normal uppercase tracking-tight">
-                    <li>Trip charges are calculated based on distance traveled and/or time used as per the agreed package.</li>
-                    <li>Toll charges, parking fees, state taxes, entry fees, and permit charges (if applicable) are additional unless specifically mentioned in the package.</li>
-                    <li>Extra kilometers and extra hours beyond the package limit will be charged separately according to company rates.</li>
-                    <li>Any route changes or additional destinations requested during the trip may result in additional charges.</li>
-                    <li>Night driving charges may apply for travel between 10:00 PM and 6:00 AM.</li>
-                    <li>The customer is responsible for checking and collecting personal belongings before leaving the vehicle. The company is not responsible for lost or forgotten items.</li>
-                    <li>Damage caused to the vehicle due to passenger negligence may be charged to the customer.</li>
-                    <li>Smoking, alcohol consumption, or carrying prohibited items inside the vehicle is not permitted unless allowed by law.</li>
-                    <li>Cancellation charges may apply according to company policy.</li>
-                    <li>The company is not responsible for delays caused by traffic, weather conditions, roadblocks, strikes, accidents, or other unforeseen circumstances.</li>
-                    <li>Full payment must be completed before or immediately after the trip unless otherwise agreed.</li>
-                    <li>Any disputes are subject Kochi jurisdiction.</li>
+        <div class="border-t border-slate-200 pt-4 grid grid-cols-12 gap-2 items-end">
+            <div id="print-terms-block" class="col-span-5 pr-2 select-none">
+                <h5 class="text-[9px] font-black uppercase tracking-wider text-slate-800 mb-1">Terms & Conditions</h5>
+                <ol class="text-[6.5px] text-slate-500 font-medium list-decimal pl-3 space-y-0.5 leading-tight uppercase tracking-tight">
+                    <li>Trip calculations are per agreed package rules.</li>
+                    <li>Tolls, parking, and state permits are additional.</li>
+                    <li>Overlimit metrics charged separately at standard rates.</li>
+                    <li>Mid-route revisions trigger rate adjustments.</li>
+                    <li>Night clauses execute between 10 PM and 6 AM.</li>
+                    <li>Company disclaims liability for left items.</li>
+                    <li>Passenger negligence faults are billed to account.</li>
+                    <li>Prohibited substances inside cabin are restricted.</li>
+                    <li>Cancellations comply with group policies.</li>
+                    <li>Delays via traffic or weather are exempt.</li>
+                    <li>Settlements trigger instantly post-trip execution.</li>
+                    <li>Disputes follow Kochi jurisdiction parameters.</li>
                 </ol>
             </div>
 
-            <div class="col-span-5 flex flex-col justify-end items-center relative h-32 pl-4">
-                <div class="absolute top-0 left-8 z-10">
-                    <img src="seal.png" alt="Company Seal" class="w-24 h-24 object-contain opacity-75 mix-blend-multiply transform -rotate-12">
+            <div id="print-qr-block" class="col-span-3 flex flex-col items-center justify-center text-center px-1 border-r border-l border-slate-100">
+                <img src="qr.png" alt="Payment QR Terminal" class="w-22 h-22 object-contain shadow-sm border p-1 rounded-lg">
+                <p class="text-[7px] text-slate-400 font-black tracking-tight mt-1 uppercase">UPI ID: 8848153676@okbizaxis</p>
+            </div>
+
+            <div id="print-sig-block" class="col-span-4 flex flex-col justify-end items-center relative h-28 pl-2">
+                <div class="absolute top-0 left-4 z-10">
+                    <img src="seal.png" alt="Company Seal" class="w-22 h-22 object-contain opacity-70 mix-blend-multiply transform -rotate-12">
                 </div>
-                
-                <div class="absolute top-2 -left-2 right-0 z-20 flex justify-center pointer-events-none">
-                    <img src="signature.png" alt="Authorized Signature" class="w-60 h-20 object-contain mix-blend-multiply transform rotate-2">
+                <div class="absolute top-1 -left-2 right-0 z-20 flex justify-center pointer-events-none">
+                    <img src="signature.png" alt="Authorized Signature" class="w-52 h-16 object-contain mix-blend-multiply transform rotate-2">
                 </div>
-                
                 <div class="border-t border-slate-300 pt-1 w-full text-center relative z-0">
                     <p class="font-black text-[9px] uppercase tracking-widest text-slate-700">Authorized Signatory</p>
                     <p class="text-[8px] text-slate-400 uppercase mt-0.5">Swiftra Mobility Group</p>
@@ -261,15 +294,59 @@
   window.handleLogout = () => signOut(auth);
   onAuthStateChanged(auth, u => {
     document.getElementById('login-overlay').style.display = u ? 'none' : 'flex';
-    if(u) { setTodayDate(); loadCloudData(); }
+    if(u) { setAutomatedDefaults(); loadCloudData(); }
   });
 
-  function setTodayDate() {
-    if (!document.getElementById('bill-date').value) {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('bill-date').value = today;
+  // Assign current date tracker context automatically while keeping inputs unmapped for clean custom values
+  function setAutomatedDefaults() {
+    const dateInput = document.getElementById('bill-date');
+    if (!dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
     }
   }
+
+  // Dual Alignment Toggling Strategies
+  window.toggleTermsDisplay = () => { recomputeFooterGrid(); };
+  window.toggleQRDisplay = () => { recomputeFooterGrid(); };
+
+  function recomputeFooterGrid() {
+      const showTerms = document.getElementById('terms-toggle').checked;
+      const showQR = document.getElementById('qr-toggle').checked;
+      
+      const tBlock = document.getElementById('print-terms-block');
+      const qBlock = document.getElementById('print-qr-block');
+      const sBlock = document.getElementById('print-sig-block');
+
+      tBlock.style.display = showTerms ? 'block' : 'none';
+      qBlock.style.display = showQR ? 'flex' : 'none';
+
+      if (showTerms && showQR) {
+          tBlock.className = "col-span-5 pr-2 select-none";
+          qBlock.className = "col-span-3 flex flex-col items-center justify-center text-center px-1 border-r border-l border-slate-100";
+          sBlock.className = "col-span-4 flex flex-col justify-end items-center relative h-28 pl-2";
+      } else if (showTerms && !showQR) {
+          tBlock.className = "col-span-7 pr-4 select-none";
+          sBlock.className = "col-span-5 flex flex-col justify-end items-center relative h-28 pl-4";
+      } else if (!showTerms && showQR) {
+          qBlock.className = "col-span-5 flex flex-col items-center justify-center text-center mx-auto";
+          sBlock.className = "col-span-7 flex flex-col justify-end items-center relative h-28 pl-6";
+      } else {
+          sBlock.className = "col-span-12 flex flex-col justify-end items-center relative h-28 mx-auto";
+      }
+  }
+
+  // Popup Management Frameworks
+  window.triggerNewBillModal = () => { document.getElementById('new-bill-modal').style.display = 'flex'; };
+  window.closeNewBillModal = () => { document.getElementById('new-bill-modal').style.display = 'none'; };
+  window.confirmResetForm = () => {
+      closeNewBillModal();
+      activeFirestoreId = null;
+      document.getElementById('billing-form').reset();
+      setAutomatedDefaults();
+      document.getElementById('btn-save').classList.remove('hidden');
+      document.getElementById('edit-controls').classList.add('hidden');
+      loadCloudData();
+  };
 
   window.updatePreview = () => {
     const sKm = parseFloat(document.getElementById('start-km').value) || 0;
@@ -293,7 +370,6 @@
     document.getElementById('print-extra-km').innerText = extraKm;
     document.getElementById('print-extra-cost').innerText = "₹" + extraCost.toLocaleString('en-IN');
     
-    // Hard check to clean mathematical irregularities from rendering raw language scripts
     document.getElementById('print-extras').innerText = "₹" + (isNaN(misc) ? 0 : misc).toLocaleString('en-IN');
     document.getElementById('print-total').innerText = "₹" + total.toLocaleString('en-IN');
     
@@ -317,18 +393,41 @@
         let displayDate = b.date ? new Date(b.date).toLocaleDateString('en-IN') : '---';
         let displayPhone = b.phone ? ` • Mob: ${b.phone}` : '';
         tbody.innerHTML += `
-          <tr onclick="loadBillToForm('${doc.id}')" class="border-b hover:bg-blue-50 cursor-pointer transition">
+          <tr class="border-b hover:bg-slate-50 transition">
             <td class="p-4">
                 <div class="font-black text-slate-800 text-xs uppercase">${b.name}</div>
-                <div class="text-[9px] text-slate-400">#${b.id} • ${b.route}${displayPhone} • ${displayDate}</div>
+                <div class="text-[9px] text-slate-400 font-medium">#${b.id} • ${b.route}${displayPhone} • ${displayDate}</div>
+                <div class="font-black text-blue-600 text-sm mt-1">₹${b.total.toLocaleString('en-IN')}</div>
             </td>
-            <td class="p-4 text-right"><div class="font-black text-blue-600">₹${b.total.toLocaleString('en-IN')}</div></td>
+            <td class="p-4 text-right whitespace-nowrap">
+                <div class="flex flex-col sm:flex-row gap-1 justify-end">
+                    <button onclick="loadAndDirectPrint('${doc.id}')" class="bg-blue-50 text-blue-600 font-extrabold text-[10px] px-3 py-1.5 rounded-lg uppercase tracking-tight hover:bg-blue-100">View Bill</button>
+                    <button onclick="loadBillToForm('${doc.id}')" class="bg-slate-100 text-slate-700 font-extrabold text-[10px] px-3 py-1.5 rounded-lg uppercase tracking-tight hover:bg-slate-200">Edit</button>
+                </div>
+            </td>
           </tr>`;
       });
       if(!activeFirestoreId) window.currentID = window.billHistory.length > 0 ? (Math.max(...window.billHistory.map(x => x.id)) + 1) : 1001;
       updatePreview();
     });
   }
+
+  window.loadAndDirectPrint = (fid) => {
+      const b = window.billHistory.find(x => x.firebaseId === fid);
+      window.currentID = b.id;
+      document.getElementById('bill-date').value = b.date || "";
+      document.getElementById('guest-name').value = b.name;
+      document.getElementById('guest-phone').value = b.phone || "";
+      document.getElementById('itinerary').value = b.route;
+      document.getElementById('start-km').value = b.sKm;
+      document.getElementById('end-km').value = b.eKm;
+      document.getElementById('fixed-limit').value = b.limit;
+      document.getElementById('extra-km-rate').value = b.rate;
+      document.getElementById('base-rate').value = b.base;
+      document.getElementById('extras').value = b.misc;
+      updatePreview();
+      setTimeout(() => { window.print(); }, 250);
+  };
 
   window.loadBillToForm = (fid) => {
     const b = window.billHistory.find(x => x.firebaseId === fid);
@@ -371,12 +470,12 @@
   };
 
   window.resetForm = () => {
-    activeFirestoreId = null;
-    document.getElementById('billing-form').reset();
-    setTodayDate();
-    document.getElementById('btn-save').classList.remove('hidden');
-    document.getElementById('edit-controls').classList.add('hidden');
-    loadCloudData();
+      activeFirestoreId = null;
+      document.getElementById('billing-form').reset();
+      setAutomatedDefaults();
+      document.getElementById('btn-save').classList.remove('hidden');
+      document.getElementById('edit-controls').classList.add('hidden');
+      loadCloudData();
   };
 
   window.switchTab = (t) => {
