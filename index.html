@@ -147,12 +147,19 @@
                     </div>
                 </div>
 
-                <div class="p-4 bg-blue-600 rounded-2xl flex flex-col sm:flex-row gap-4 justify-between items-center text-white shadow-lg">
-                    <div class="flex flex-col"><span class="text-[9px] font-black uppercase opacity-70">Total Amount</span><span id="total-display" class="text-2xl font-black">₹0</span></div>
-                    <div class="flex flex-wrap gap-1.5 justify-end items-center">
-                        <button type="button" onclick="window.print()" class="bg-white/20 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-white/30">Print</button>
-                        <button type="button" onclick="downloadInvoicePDF()" class="bg-white text-blue-600 px-3 py-2 rounded-xl text-[10px] font-black uppercase shadow-sm hover:bg-blue-50">Download</button>
-                        <button type="button" onclick="sendInvoiceViaWhatsApp()" class="bg-emerald-500 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase shadow-md flex items-center gap-1 hover:bg-emerald-600">
+                <div class="p-4 bg-blue-600 rounded-2xl flex flex-col gap-3 text-white shadow-lg">
+                    <div class="flex justify-between items-center w-full">
+                        <div class="flex flex-col"><span class="text-[9px] font-black uppercase opacity-70">Total Amount</span><span id="total-display" class="text-2xl font-black">₹0</span></div>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="window.print()" class="bg-white/20 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-white/30">Print</button>
+                            <button type="button" onclick="downloadInvoicePDF()" class="bg-white text-blue-600 px-3 py-2 rounded-xl text-[10px] font-black uppercase shadow-sm hover:bg-blue-50">Download</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 w-full pt-1 border-t border-white/10">
+                        <button type="button" onclick="sendTripStartAcknowledgment()" class="bg-amber-500 text-white py-2 rounded-xl text-[10px] font-black uppercase shadow-md tracking-tight hover:bg-amber-600">
+                           🚀 Start Trip Msg
+                        </button>
+                        <button type="button" onclick="sendInvoiceViaWhatsApp()" class="bg-emerald-500 text-white py-2 rounded-xl text-[10px] font-black uppercase shadow-md tracking-tight hover:bg-emerald-600">
                            💬 WhatsApp Bill
                         </button>
                     </div>
@@ -169,7 +176,7 @@
         </div>
 
         <div id="tab-list" class="mobile-hidden lg:block bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[650px]">
-            <input type="text" id="search-input" onkeyup="filterBills()" placeholder="🔍 Search Name, Phone or Bill #..." class="w-full p-4 bg-slate-50 rounded-2xl mb-4 text-sm border-none">
+            <input type="text" id="search-input" onkeyup="filterBills()" placeholder="🔍 Search Name, Phone or Status..." class="w-full p-4 bg-slate-50 rounded-2xl mb-4 text-sm border-none">
             <div class="overflow-y-auto flex-1"><table class="w-full text-left text-sm"><tbody id="bill-book-entries" class="divide-y divide-slate-100"></tbody></table></div>
         </div>
     </div>
@@ -193,7 +200,7 @@
                             PRWN-LB/23 Building, Second Floor,<br>
                             Pallath Road, Thammanam,<br>
                             Kochi, Kerala - 682032<br>
-                            <span class="font-bold text-slate-700">Email:</span> swiftraindia@gmail.com &nbsp;|&nbsp; <span class="font-bold text-slate-700">Mob:</span> +91 98450 12345
+                            <span class="font-bold text-slate-700">Email:</span> swiftraindia@gmail.com &nbsp;|&nbsp; <span class="font-bold text-slate-700">Mob:</span> +91 88481 53676
                         </div>
                     </div>
                 </div>
@@ -375,6 +382,47 @@
       }
   };
 
+  window.sendTripStartAcknowledgment = () => {
+      const phoneInput = document.getElementById('guest-phone').value.trim();
+      const nameInput = document.getElementById('guest-name').value.trim() || "Valued Guest";
+      const routeInput = document.getElementById('itinerary').value.trim() || "Destination Details";
+      const startKmInput = document.getElementById('start-km').value.trim() || "0";
+      
+      const rawDate = document.getElementById('bill-date').value;
+      let formattedDate = "Today";
+      if (rawDate) {
+          const parts = rawDate.split('-');
+          formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+
+      if (!phoneInput) {
+          alert("Please enter a valid Customer Mobile Number to send the tracking alert.");
+          return;
+      }
+
+      let cleanPhone = phoneInput.replace(/[^0-9]/g, "");
+      if (cleanPhone.length === 10) {
+          cleanPhone = "91" + cleanPhone;
+      }
+
+      const messageText = 
+`✨ *Trip Started Acknowledgment* | *Swiftra Premium Mobility Solutions*
+
+Dear ${nameInput.toUpperCase()},
+Your premium transit schedule has been officially initiated. We are committed to ensuring a safe, reliable, and comfortable journey ahead! 🚙
+
+📌 *Start Date:* ${formattedDate}
+📍 *Route:* ${routeInput}
+📟 *Initial Opening KM:* ${startKmInput} KM
+
+Our customer helpline is live 24/7. Thank you for choosing Swiftra! Have an amazing trip. 🌟`;
+
+      const encodedMessage = encodeURIComponent(messageText);
+      const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedMessage}`;
+      
+      window.open(url, '_blank');
+  };
+
   window.sendInvoiceViaWhatsApp = () => {
       const phoneInput = document.getElementById('guest-phone').value.trim();
       const nameInput = document.getElementById('guest-name').value.trim() || "Valued Guest";
@@ -420,9 +468,9 @@ Have a wonderful day ahead! 🌟`;
       window.open(url, '_blank');
   };
 
-  // HYPER-CALIBRATED NO-BLANK-PAGE PDF CONVERSION ENGINE
+  // HYPER-CALIBRATED EXACT-ALIGNMENT PDF DOWNLOAD ENGINE (No Clones / Direct Emulated IFrame Injection)
   window.downloadInvoicePDF = () => {
-      const sourceElement = document.getElementById('bill-canvas');
+      const sourceHtml = document.getElementById('bill-canvas').innerHTML;
       const rawName = document.getElementById('guest-name').value.trim() || "Guest";
       const rawDate = document.getElementById('bill-date').value;
       
@@ -435,34 +483,41 @@ Have a wonderful day ahead! 🌟`;
       const cleanName = rawName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
       const generatedFileName = `${cleanName}_${formattedDate}.pdf`;
 
-      // SOLUTION: Clone element safely into an isolated sandbox to decouple from hidden page properties
-      const clonedElement = sourceElement.cloneNode(true);
-      clonedElement.style.display = 'block';
-      clonedElement.style.width = '175mm'; // Perfectly maps printable canvas boundary rules
-      clonedElement.style.height = 'auto';
-      clonedElement.style.padding = '0';
-      clonedElement.style.margin = '0';
-      clonedElement.style.background = '#ffffff';
+      // Create a clean off-screen sandbox container that perfectly mirrors a desktop A4 view context
+      const workerFrame = document.createElement('iframe');
+      workerFrame.style.position = 'fixed';
+      workerFrame.style.width = '210mm';
+      workerFrame.style.height = '297mm';
+      workerFrame.style.top = '-9999px';
+      workerFrame.style.left = '-9999px';
+      document.body.appendChild(workerFrame);
 
-      // Inject temporary wrapper to force strict offscreen isolation container layout
-      const workerWrapper = document.createElement('div');
-      workerWrapper.style.position = 'fixed';
-      workerWrapper.style.top = '-99999px';
-      workerWrapper.style.left = '-99999px';
-      workerWrapper.style.width = '210mm';
-      workerWrapper.style.height = '297mm';
-      workerWrapper.style.padding = '15mm 20mm';
-      workerWrapper.style.boxSizing = 'border-box';
-      workerWrapper.style.background = '#ffffff';
-      workerWrapper.appendChild(clonedElement);
-      document.body.appendChild(workerWrapper);
+      const frameDoc = workerFrame.contentDocument || workerFrame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(`
+        <html>
+          <head>
+            <script src="https://cdn.tailwindcss.com"><\/script>
+            <style>
+              body { background: #ffffff; padding: 15mm 20mm; margin: 0; font-family: sans-serif; box-sizing: border-box; width: 210mm; height: 297mm; overflow: hidden; }
+              * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
+            </style>
+          </head>
+          <body>
+            <div style="width: 100%; height: 100%; display: flex; flex-col; justify-content: space-between;">
+              ${sourceHtml}
+            </div>
+          </body>
+        </html>
+      `);
+      frameDoc.close();
 
       const opt = {
           margin:       0,
           filename:     generatedFileName,
           image:        { type: 'jpeg', quality: 0.98 },
           html2canvas:  { 
-              scale: 2, 
+              scale: 2.5, 
               useCORS: true, 
               logging: false,
               letterRendering: true,
@@ -471,11 +526,12 @@ Have a wonderful day ahead! 🌟`;
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // Run generator directly against our isolated offscreen sandbox element node
-      html2pdf().set(opt).from(workerWrapper).save().then(() => {
-          // Garbage collect and drop sandbox trace cleanly once down-stream finishes saving the asset
-          document.body.removeChild(workerWrapper);
-      });
+      // Delay execution slightly to ensure Tailwind graphics are fully compiled inside the virtual workspace DOM
+      setTimeout(() => {
+          html2pdf().set(opt).from(frameDoc.body).save().then(() => {
+              document.body.removeChild(workerFrame);
+          });
+      }, 450);
   };
 
   window.updatePreview = () => {
@@ -522,11 +578,20 @@ Have a wonderful day ahead! 🌟`;
         
         let displayDate = b.date ? new Date(b.date).toLocaleDateString('en-IN') : '---';
         let displayPhone = b.phone ? ` • Mob: ${b.phone}` : '';
+        
+        const endKmValue = parseFloat(b.eKm) || 0;
+        let statusBadge = '';
+        if(endKmValue > 0) {
+            statusBadge = `<span class="bg-gray-100 text-gray-600 text-[8px] font-extrabold px-1.5 py-0.5 rounded tracking-wide uppercase ml-2 select-none">🏁 COMPLETED</span>`;
+        } else {
+            statusBadge = `<span class="bg-emerald-50 text-emerald-600 text-[8px] font-black px-1.5 py-0.5 rounded tracking-wide uppercase ml-2 animate-pulse select-none">🟢 ACTIVE</span>`;
+        }
+
         tbody.innerHTML += `
           <tr class="border-b hover:bg-slate-50 transition">
             <td class="p-4">
-                <div class="font-black text-slate-800 text-xs uppercase">${b.name}</div>
-                <div class="text-[9px] text-slate-400 font-medium">#${b.id} • ${b.route}${displayPhone} • ${displayDate}</div>
+                <div class="font-black text-slate-800 text-xs uppercase flex items-center">${b.name}${statusBadge}</div>
+                <div class="text-[9px] text-slate-400 font-medium mt-0.5">#${b.id} • ${b.route}${displayPhone} • ${displayDate}</div>
                 <div class="font-black text-blue-600 text-sm mt-1">₹${b.total.toLocaleString('en-IN')}</div>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
